@@ -1,9 +1,10 @@
+# 顶部导航栏菜单项配置
 main:
-  - title: "Posts"
-    url: /posts/
-  - title: "Categories"
-    url: /categories/
-  - title: "Tags"
-    url: /tags/
-  - title: "About"
+  - title: "CURRICULUM"
     url: /about/
+  - title: "BLOG"
+    url: /
+  - title: "CATEGORIES"
+    url: /categories/
+  - title: "TAGS"
+    url: /tags/

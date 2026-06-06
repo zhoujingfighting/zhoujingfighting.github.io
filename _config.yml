@@ -8,87 +8,71 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # 'bundle exec jekyll serve'. If you change this file, please restart the server process.
 
-# Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
-title: MM
-email:
-description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
-twitter_username: username
-github_username: username
-minimal_mistakes_skin: default
+# ==============================================================================
+# 1. 站点基础设置 (Site Settings)
+# ==============================================================================
+repository: zhoujingfighting/zhoujingfighting.github.io
+title: Jing Zhou's Blog
+email: zhoujingfightinghahaha@gmail.com
+description: "Jing Zhou's technical blog focusing on LLVM, GPU Compiler, and High-Performance Computing."
+github_username: zhoujingfighting
 search: true
 
-# Build settings
-markdown: kramdown
-remote_theme: mmistakes/minimal-mistakes
-# Outputting
-permalink: /:categories/:title/
-paginate: 5 # amount of posts to show
-paginate_path: /page:num/
-timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# 强制本地渲染未发布或未来日期的文章
+future: true
 
-include:
-  - _pages
+# 核心皮肤修改：使用高级黑白高对比度主题
+minimal_mistakes_skin: contrast
 
-# Exclude from processing.
-# The following items will not be processed, by default. Create a custom list
-# to override the default setting.
-# exclude:
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+# 核心：点亮右上角的“明暗主题切换”月亮按钮
+minimal_mistakes_skin_switch: true
 
-# Plugins (previously gems:)
-plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
-  - jemoji
-  - jekyll-include-cache
-
+# ==============================================================================
+# 2. 核心：左侧边栏博主配置 (Author Profile)
+# ==============================================================================
 author:
-  name   : "First Lastname"
+  name   : "Jing Zhou"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "My awesome biography constrained to a sentence or two goes here."
+  bio    : "LLVM & GPU Compiler Engineer"
+  location: "Hangzhou, China"
+
+  # 核心点亮：显示 POSTS、CATEGORIES、TAGS 统计数据面板
+  stats: true
+
+  # 核心点亮：显示彩色的 Follow 按钮
+  follow_button: true
+
   links:
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/zhoujingfighting"
 
-footer:
-  links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+# ==============================================================================
+# 3. 核心：评论系统配置 (Comments Settings)
+# ==============================================================================
+comments:
+  provider: "giscus"
 
+# 配置 Giscus 参数
+giscus:
+  repo: "zhoujingfighting/zhoujingfighting.github.io"
+  repo_id: "MDEwOlJlcG9zaXRvcnkzNjA1MzY4NzU="
+  category: "General"
+  category_id: "DIC_kwDOFX1bK84C-n8k"
+  mapping: "pathname"
+  strict: "0"
+  input_position: "bottom"
+  theme: "preferred_color_scheme"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  lang: "zh-CN"
+  crossorigin: "anonymous"
+
+# ==============================================================================
+# 4. 核心：全局默认行为控制 (Defaults)
+# ==============================================================================
 defaults:
-  # _posts
+  # _posts（文章）的默认行为
   - scope:
       path: ""
       type: posts
@@ -96,16 +80,53 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: true
-      share: true
+      share: false
       related: true
-  # _pages
+
+      # 核心调整：开启评论！
+      comments: true
+
+      # 主页文章以列表展示，且不显示凌乱的文字摘要
+      entries_layout: list
+      show_excerpts: false
+
+      # 开启目录并将其强制挪到【左侧边栏下方】
+      toc: true
+      toc_sticky: true
+      toc_side: "left"
+      toc_label: "CATALOGUE"
+
+  # _pages（独立页面）的默认行为
   - scope:
       path: "_pages"
       type: pages
     values:
       layout: single
       author_profile: true
+
+# ==============================================================================
+# 5. 其余编译与插件设置 (Build Settings & Plugins)
+# ==============================================================================
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+
+remote_theme: mmistakes/minimal-mistakes
+permalink: /:categories/:title/
+paginate: 10
+paginate_path: /page:num/
+timezone: Asia/Shanghai
+
+include:
+  - _pages
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
 
 category_archive:
   type: liquid
