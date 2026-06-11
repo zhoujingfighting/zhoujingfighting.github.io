@@ -90,11 +90,9 @@ defaults:
       entries_layout: list
       show_excerpts: false
 
-      # 开启目录并将其强制挪到【左侧边栏下方】
-      toc: true
-      toc_sticky: true
-      toc_side: "left"
-      toc_label: "CATALOGUE"
+      # 关闭右侧目录，使用宽屏布局让正文占据更多空间
+      toc: false
+      classes: wide
 
   # _pages（独立页面）的默认行为
   - scope:
@@ -103,6 +101,7 @@ defaults:
     values:
       layout: single
       author_profile: true
+      classes: wide
 
 # ==============================================================================
 # 5. 其余编译与插件设置 (Build Settings & Plugins)
