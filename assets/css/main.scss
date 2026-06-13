@@ -1,0 +1,29 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@charset "utf-8";
+
+@import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}";
+@import "minimal-mistakes";
+
+// Override avatar shape and size
+.author__avatar {
+  width: 60px !important;
+  height: 60px !important;
+
+  @media (min-width: 64em) {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  img {
+    border-radius: 0% !important;
+    
+    // Desktop size (large screens)
+    @media (min-width: 64em) {
+      max-width: 200px !important;
+    }
+  }
+}
+
