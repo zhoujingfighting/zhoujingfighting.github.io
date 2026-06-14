@@ -33,11 +33,11 @@ This blog is a personal space where I document my technical journey, insights, a
 
 ## 💼 Experience (工作经历 / 职业生涯)
 
-- **爱捷科芯科技有限公司(杭州)** | *Senior LLVM GPGPU Compiler Engineer*
+- **爱捷科芯科技有限公司(杭州)** — *Senior LLVM GPGPU Compiler Engineer*
   - **时间**: 2025.02 - 至今 (Present)
   - **核心职责**: 负责GPGPU编译器后端代码生成优化。
   - **主要成果**: 优化了某些特定算子的指令调度，提升了异构计算下的整体吞吐量。
-- **兆松科技(武汉)有限责任公司** | *Software Engineer*
+- **兆松科技(武汉)有限责任公司** — *Software Engineer*
   - **时间**: 2021.05 - 2025.02
   - **核心职责**: 参与 LLVM 编译器 Pass 的设计与开发，进行中端/后端优化。
 
@@ -45,12 +45,14 @@ This blog is a personal space where I document my technical journey, insights, a
 
 ## 🎓 Education (教育背景)
 
-- **华中科技大学** | *School of Chemical Engineering and Technology*
+- **华中科技大学** — *School of Chemical Engineering and Technology*
   - **时间**: 2012.09 - 2016.06
-  - **学位 / 专业**: 本科 / 化学工程与工艺
-- **中国科学院大学(大连化学物理研究所)** | *Physical Chemistry*
+  - **学位/专业**: 本科/化学工程与工艺
+
+- **中国科学院大学(大连化学物理研究所)** — *Physical Chemistry*
   - **时间**: 2016.09 - 2019.07
-  - **学位 / 专业**: 博士肄业 / 物理化学
+  - **学位/专业**: 博士肄业/物理化学
+  
 ---
 
 ## 📬 Contact (联系方式)
