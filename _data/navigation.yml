@@ -2,6 +2,8 @@
 main:
   - title: "CURRICULUM"
     url: /about/
+  - title: "TRITON"
+    url: /triton/
   - title: "BLOG"
     url: /
   - title: "CATEGORIES"
