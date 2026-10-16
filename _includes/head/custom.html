@@ -1,2 +1,60 @@
 <!-- insert favicons. use https://realfavicongenerator.net/ -->
 <link rel="icon" type="image/png" href="{{ '/assets/images/favicon.png' | relative_url }}">
+
+<!-- MathJax 3 (Math Formula Support) -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true
+    },
+    options: {
+      renderActions: {
+        findScript: [10, function (doc) {
+          document.querySelectorAll('script[type^="math/tex"]').forEach(function (node) {
+            const display = !!node.type.match(/; *mode=display/);
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+            const text = document.createTextNode('');
+            node.parentNode.replaceChild(text, node);
+            math.start = {node: text, delim: '', n: 0};
+            math.end = {node: text, delim: '', n: 0};
+            doc.math.push(math);
+          });
+        }, '']
+      }
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<!-- Mermaid 11 (Diagram Support) -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'default'
+  });
+
+  document.addEventListener('DOMContentLoaded', async function() {
+    const mermaidElements = document.querySelectorAll('.language-mermaid');
+    if (mermaidElements.length > 0) {
+      mermaidElements.forEach(el => {
+        const code = el.querySelector('code') ? el.querySelector('code').textContent : el.textContent;
+        const pre = document.createElement('pre');
+        pre.className = 'mermaid';
+        pre.style.textAlign = 'center';
+        pre.style.background = 'transparent';
+        pre.style.border = 'none';
+        pre.textContent = code.trim();
+        el.parentNode.replaceChild(pre, el);
+      });
+      try {
+        await mermaid.run({ querySelector: '.mermaid' });
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+      }
+    }
+  });
+</script>
