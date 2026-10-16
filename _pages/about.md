@@ -24,6 +24,7 @@ This blog is a personal space where I document my technical journey, insights, a
 
 ## 📚 What I Write About (博客主题)
 
+- **[GPGPU 编译器面试宝典](/gpgpu-interview/)**: 体系化 GPGPU 编译器工程师求职与通关指南，涵盖硬件微架构、LLVM/MLIR 优化、后端代码生成与大厂真题深度复盘。
 - **Deep Dives into Compiler Internals**: Understanding compilation pipelines of HIP/CUDA files (e.g., detailed execution flow of `hipcc`).
 - **Hands-on ROCm**: Step-by-step guides for compiling ROCm runtime libraries from source and configuring compiler toolchains.
 - **HPC Performance Recipes**: Micro-optimizations and techniques for modern parallel architectures.

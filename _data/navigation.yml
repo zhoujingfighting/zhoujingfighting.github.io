@@ -6,6 +6,8 @@ main:
     url: /triton/
   - title: "BLOG"
     url: /
+  - title: "GPGPU INTERVIEW"
+    url: /gpgpu-interview/
   - title: "CATEGORIES"
     url: /categories/
   - title: "TAGS"
