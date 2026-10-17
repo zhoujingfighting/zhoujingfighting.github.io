@@ -256,4 +256,5 @@ GPU 的各级 Cache 架构（如 L1/Texture Cache）默认通常是**弱一致�
 ---
 
 {: .notice--success}
+👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/gpgpu-compiler-interview-day-2/)**
 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
