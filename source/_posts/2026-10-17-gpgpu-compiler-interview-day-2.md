@@ -1,14 +1,9 @@
 ---
-layout: single
 title: "GPGPU 编译器面试题精选（Day 2）：标量优化、Bank Conflict、软流水与指令发射"
 date: 2026-10-17
 categories: [gpu-compiler]
 tags: [GPGPU, LLVM, 面试, 体系结构, 软流水, 访存优化]
 toc: true
-toc_label: "本期核心考点"
-toc_icon: "fire"
-toc_sticky: true
-classes: wide
 ---
 
 > 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第二期（Day 2）。
@@ -291,6 +286,5 @@ flowchart TD
 
 ---
 
-{: .notice--success}
-👈 **上一期回顾**：**[Day 1：体系结构、控制流、LLVM 优化与内存模型](/gpu-compiler/gpgpu-compiler-interview-day-1/)**  
-👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：**[Day 1：体系结构、控制流、LLVM 优化与内存模型](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/)**
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。

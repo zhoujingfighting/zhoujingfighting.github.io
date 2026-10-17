@@ -1,14 +1,9 @@
 ---
-layout: single
 title: "GPGPU 编译器面试题精选（Day 1）：体系结构、控制流、LLVM 优化与内存模型"
 date: 2026-10-16
 categories: [gpu-compiler]
 tags: [GPGPU, LLVM, 面试, 体系结构, 编译优化]
 toc: true
-toc_label: "本期核心考点"
-toc_icon: "fire"
-toc_sticky: true
-classes: wide
 ---
 
 > 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第一期（Day 1）。
@@ -254,6 +249,5 @@ GPU 的各级 Cache 架构（如 L1/Texture Cache）默认通常是**弱一致�
 
 ---
 
-{: .notice--success}
-👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/gpgpu-compiler-interview-day-2/)**
-👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)**
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。

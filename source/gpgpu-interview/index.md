@@ -46,8 +46,8 @@ graph TD
 
 | 序号 | 题目专刊 | 核心考察领域与考点 | 状态 |
 | :---: | :--- | :--- | :---: |
-| **Day 1** | [**精选 Day 1：体系结构、控制流、LLVM 优化与内存模型**](/gpu-compiler/gpgpu-compiler-interview-day-1/) | 寄存器压力与 Occupancy、SIMT 分支发散与 Structurization、Address Space 降级、LoadStoreVectorizer 安全性、GPU 内存模型与 Fence 调度约束 | ✅ **已发布** |
-| **Day 2** | [**精选 Day 2：标量优化、Bank Conflict、软流水与指令发射**](/gpu-compiler/gpgpu-compiler-interview-day-2/) | Uniformity 标量通道与控制发散、Shared Memory Bank 冲突与 Swizzling、软流水与异步拷贝演进、寄存器 Bank 冲突与操作数收集器、Scoreboard 与 Waitcnt | ✅ **已发布** |
+| **Day 1** | [**精选 Day 1：体系结构、控制流、LLVM 优化与内存模型**](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/) | 寄存器压力与 Occupancy、SIMT 分支发散与 Structurization、Address Space 降级、LoadStoreVectorizer 安全性、GPU 内存模型与 Fence 调度约束 | ✅ **已发布** |
+| **Day 2** | [**精选 Day 2：标量优化、Bank Conflict、软流水与指令发射**](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/) | Uniformity 标量通道与控制发散、Shared Memory Bank 冲突与 Swizzling、软流水与异步拷贝演进、寄存器 Bank 冲突与操作数收集器、Scoreboard 与 Waitcnt | ✅ **已发布** |
 
 ### 模块一：GPGPU 体系结构与硬件机制（地基篇）
 

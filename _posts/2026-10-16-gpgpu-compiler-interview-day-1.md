@@ -1,21 +1,15 @@
 ---
-layout: single
 title: "GPGPU 编译器面试题精选（Day 1）：体系结构、控制流、LLVM 优化与内存模型"
 date: 2026-10-16
 categories: [gpu-compiler]
 tags: [GPGPU, LLVM, 面试, 体系结构, 编译优化]
 toc: true
-toc_label: "本期核心考点"
-toc_icon: "fire"
-toc_sticky: true
-classes: wide
 ---
 
 > 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第一期（Day 1）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
-{: .notice--info}
-**核心考察维度**：硬件资源约束（Occupancy & Spilling）、SIMT 执行模型与控制流结构化、LLVM 异构地址空间体系、中后端访存合并与向量化安全分析、细粒度 GPU 内存模型及调度约束。
+> 💡 **核心考察维度**：硬件资源约束（Occupancy & Spilling）、SIMT 执行模型与控制流结构化、LLVM 异构地址空间体系、中后端访存合并与向量化安全分析、细粒度 GPU 内存模型及调度约束。
 
 ---
 
@@ -188,11 +182,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    BB[扫描 BasicBlock 指令] --> SCEV{SCEV 分析\n连续常量偏移?}
-    SCEV -->|Yes| AA{Alias Analysis\n中间有冲突 Store?}
-    AA -->|No Alias| Align{Alignment 分析\n满足 16 字节对齐?}
-    Align -->|Safe| Vectorize[合并为 128-bit 向量访存]
-    SCEV -->|No| Abort[放弃合并]
+    BB["扫描 BasicBlock 指令"] --> SCEV{"SCEV 分析<br/>连续常量偏移?"}
+    SCEV -->|Yes| AA{"Alias Analysis<br/>中间有冲突 Store?"}
+    AA -->|No Alias| Align{"Alignment 分析<br/>满足 16 字节对齐?"}
+    Align -->|Safe| Vectorize["合并为 128-bit 向量访存"]
+    SCEV -->|No| Abort["放弃合并"]
     AA -->|May/Must Alias| Abort
     Align -->|Misaligned| Abort
 ```
@@ -255,6 +249,5 @@ GPU 的各级 Cache 架构（如 L1/Texture Cache）默认通常是**弱一致�
 
 ---
 
-{: .notice--success}
-👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/gpgpu-compiler-interview-day-2/)**
-👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)**
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
