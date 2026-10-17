@@ -1,0 +1,75 @@
+# Icarus theme configuration
+# See: https://github.com/ppoffice/hexo-theme-icarus
+
+version: 5.1.0
+
+# Site logo
+logo: /images/bio-photo.jpg
+
+# Navigation bar items
+navbar:
+  menu:
+    Home: /
+    About: /about/
+    "GPGPU Interview": /gpgpu-interview/
+    Categories: /categories/
+    Tags: /tags/
+    Archives: /archives/
+  links:
+    GitHub:
+      icon: fab fa-github
+      url: 'https://github.com/zhoujingfighting'
+
+# Footer settings
+footer:
+  links:
+    GitHub:
+      icon: fab fa-github
+      url: 'https://github.com/zhoujingfighting'
+
+# Article settings
+article:
+  highlight:
+    clipboard: true
+    folding: true
+  readtime: true
+  update_time: false
+  licenses:
+    "CC BY-NC-SA 4.0":
+      icon: fab fa-creative-commons
+      url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
+
+# Search settings
+search:
+  type: insight
+
+# Sidebar widgets
+widgets:
+  # Left Column Widgets
+  - position: left
+    type: profile
+    author: Jing Zhou
+    author_title: "LLVM & GPU Compiler Engineer"
+    location: "Hangzhou, China"
+    avatar: /images/bio-photo.jpg
+    avatar_rounded: true
+    follow_link: 'https://github.com/zhoujingfighting'
+    social_links:
+      GitHub:
+        icon: fab fa-github
+        url: 'https://github.com/zhoujingfighting'
+  - position: left
+    type: categories
+
+  # Right Column Widgets
+  - position: right
+    type: recent_posts
+  - position: right
+    type: archives
+  - position: right
+    type: tags
+
+# Plugins
+plugins:
+  mathjax: true
+  fancybox: false

@@ -1,0 +1,135 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+
+# ==============================================================================
+# 1. 站点基础设置 (Site Settings)
+# ==============================================================================
+repository: zhoujingfighting/zhoujingfighting.github.io
+title: Jing Zhou's Blog
+email: zhoujingfightinghahaha@gmail.com
+description: "Jing Zhou's technical blog focusing on LLVM, GPU Compiler, and High-Performance Computing."
+github_username: zhoujingfighting
+search: true
+
+# 强制本地渲染未发布或未来日期的文章
+future: true
+
+# 核心皮肤修改：使用高级黑白高对比度主题
+minimal_mistakes_skin: contrast
+
+# 核心：点亮右上角的“明暗主题切换”月亮按钮
+minimal_mistakes_skin_switch: true
+
+# ==============================================================================
+# 2. 核心：左侧边栏博主配置 (Author Profile)
+# ==============================================================================
+author:
+  name   : "Jing Zhou"
+  avatar : "/assets/images/bio-photo.jpg"
+  bio    : "LLVM & GPU Compiler Engineer"
+  location: "Hangzhou, China"
+
+  # 核心点亮：显示 POSTS、CATEGORIES、TAGS 统计数据面板
+  stats: true
+
+  # 核心点亮：显示彩色的 Follow 按钮
+  follow_button: true
+
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/zhoujingfighting"
+
+# ==============================================================================
+# 3. 核心：评论系统配置 (Comments Settings)
+# ==============================================================================
+comments:
+  provider: "giscus"
+
+# 配置 Giscus 参数
+giscus:
+  repo: "zhoujingfighting/zhoujingfighting.github.io"
+  repo_id: "MDEwOlJlcG9zaXRvcnkzNjA1MzY4NzU="
+  category: "General"
+  category_id: "DIC_kwDOFX1bK84C-n8k"
+  mapping: "pathname"
+  strict: "0"
+  input_position: "bottom"
+  theme: "preferred_color_scheme"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  lang: "zh-CN"
+  crossorigin: "anonymous"
+
+# ==============================================================================
+# 4. 核心：全局默认行为控制 (Defaults)
+# ==============================================================================
+defaults:
+  # _posts（文章）的默认行为
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      share: false
+      related: true
+
+      # 核心调整：开启评论！
+      comments: true
+
+      # 主页文章以列表展示，且不显示凌乱的文字摘要
+      entries_layout: list
+      show_excerpts: false
+
+      # 关闭右侧目录，使用宽屏布局让正文占据更多空间
+      toc: false
+      classes: wide
+
+  # _pages（独立页面）的默认行为
+  - scope:
+      path: "_pages"
+      type: pages
+    values:
+      layout: single
+      author_profile: true
+      classes: wide
+
+# ==============================================================================
+# 5. 其余编译与插件设置 (Build Settings & Plugins)
+# ==============================================================================
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+
+remote_theme: mmistakes/minimal-mistakes
+permalink: /:categories/:title/
+paginate: 10
+paginate_path: /page:num/
+timezone: Asia/Shanghai
+
+include:
+  - _pages
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
+
+category_archive:
+  type: liquid
+  path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/

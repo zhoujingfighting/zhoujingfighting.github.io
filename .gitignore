@@ -2,3 +2,7 @@ _site
 .sass-cache
 .jekyll-metadata
 Gemfile.lock
+node_modules
+public
+db.json
+.deploy_git
