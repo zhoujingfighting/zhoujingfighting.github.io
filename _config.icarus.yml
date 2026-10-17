@@ -43,6 +43,22 @@ article:
 search:
   type: insight
 
+# Comment settings (Giscus)
+comment:
+  type: giscus
+  repo: "zhoujingfighting/zhoujingfighting.github.io"
+  repoId: "MDEwOlJlcG9zaXRvcnkzNjA1MzY4NzU="
+  category: "General"
+  categoryId: "DIC_kwDOFX1bK84C-n8k"
+  mapping: pathname
+  strict: false
+  reactionsEnabled: true
+  emitMetadata: false
+  inputPosition: bottom
+  theme: preferred_color_scheme
+  lang: zh-CN
+  lazy: false
+
 # Sidebar widgets
 widgets:
   # Left Column Widgets

@@ -187,11 +187,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    BB[扫描 BasicBlock 指令] --> SCEV{SCEV 分析\n连续常量偏移?}
-    SCEV -->|Yes| AA{Alias Analysis\n中间有冲突 Store?}
-    AA -->|No Alias| Align{Alignment 分析\n满足 16 字节对齐?}
-    Align -->|Safe| Vectorize[合并为 128-bit 向量访存]
-    SCEV -->|No| Abort[放弃合并]
+    BB["扫描 BasicBlock 指令"] --> SCEV{"SCEV 分析<br/>连续常量偏移?"}
+    SCEV -->|Yes| AA{"Alias Analysis<br/>中间有冲突 Store?"}
+    AA -->|No Alias| Align{"Alignment 分析<br/>满足 16 字节对齐?"}
+    Align -->|Safe| Vectorize["合并为 128-bit 向量访存"]
+    SCEV -->|No| Abort["放弃合并"]
     AA -->|May/Must Alias| Abort
     Align -->|Misaligned| Abort
 ```

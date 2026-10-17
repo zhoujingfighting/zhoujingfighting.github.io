@@ -117,11 +117,11 @@ LLVM 的 `UniformityAnalysis` 采用基于数据流图的前向标记与不动�
 
 ```mermaid
 flowchart TD
-    Entry["Entry: x_0 = 0"] --> Cond{"threadIdx.x < 16 (Divergent)"}
-    Cond -->|True (Lane 0..15)| ThenBlock["Then: x_1 = 1 (Const Uniform)"]
-    Cond -->|False (Lane 16..31)| Join["IPDOM: x_2 = phi(x_1, x_0)"]
+    Entry["Entry: x_0 = 0"] --> Cond{"threadIdx.x &lt; 16 (Divergent)"}
+    Cond -->|"True (Lane 0..15)"| ThenBlock["Then: x_1 = 1 (Const Uniform)"]
+    Cond -->|"False (Lane 16..31)"| Join["IPDOM: x_2 = phi(x_1, x_0)"]
     ThenBlock --> Join
-    Join --> DivergentNode["x_2 最终为 Divergent!\n(跨发散控制流汇总)"]
+    Join --> DivergentNode["x_2 最终为 Divergent<br/>(跨发散控制流汇总)"]
 
     style DivergentNode fill:#ffeef0,stroke:#ff7875,stroke-width:2px;
 ```
@@ -160,12 +160,12 @@ flowchart TD
 flowchart LR
     subgraph Padding方案
     P1["tile[32][32] 列步长=32"] -->|扩容| P2["tile[32][33] 列步长=33"]
-    P2 -->|效果| P3["Bank 依次偏移，消除冲突\n(但破坏了 16 字节对齐)"]
+    P2 -->|效果| P3["Bank 依次偏移，消除冲突<br/>(但破坏了 16 字节对齐)"]
     end
 
     subgraph Swizzling方案
     S1["保持 tile[32][32] 大小不变"] -->|逻辑映射| S2["Col' = Col ^ (Row % 8)"]
-    S2 -->|效果| S3["打散列访问至各 Bank\n(且完美保持 128-bit 对齐)"]
+    S2 -->|效果| S3["打散列访问至各 Bank<br/>(且完美保持 128-bit 对齐)"]
     end
 ```
 
@@ -227,10 +227,10 @@ flowchart TD
         B2["Bank 2 (R2, R6, R10...)"]
         B3["Bank 3 (R3, R7, R11...)"]
     end
-    Collector -->|周期 1 读取 R0| B0
-    Collector -->|周期 2 读取 R4 (冲突等待)| B0
-    Collector -->|周期 3 读取 R8 (冲突等待)| B0
-    Collector -->|操作数全部集齐| ALU["进入 ALU 执行"]
+    Collector -->|"周期 1: 读取 R0"| B0
+    Collector -->|"周期 2: 读取 R4 (冲突等待)"| B0
+    Collector -->|"周期 3: 读取 R8 (冲突等待)"| B0
+    Collector -->|"操作数全部集齐"| ALU["进入 ALU 执行"]
 
     style B0 fill:#ffeef0,stroke:#ff7875,stroke-width:2px;
 ```
