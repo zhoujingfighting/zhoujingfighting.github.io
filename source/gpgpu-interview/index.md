@@ -48,6 +48,18 @@ graph TD
 | :---: | :--- | :--- | :---: |
 | **Day 1** | [**精选 Day 1：体系结构、控制流、LLVM 优化与内存模型**](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/) | 寄存器压力与 Occupancy、SIMT 分支发散与 Structurization、Address Space 降级、LoadStoreVectorizer 安全性、GPU 内存模型与 Fence 调度约束 | ✅ **已发布** |
 | **Day 2** | [**精选 Day 2：标量优化、Bank Conflict、软流水与指令发射**](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/) | Uniformity 标量通道与控制发散、Shared Memory Bank 冲突与 Swizzling、软流水与异步拷贝演进、寄存器 Bank 冲突与操作数收集器、Scoreboard 与 Waitcnt | ✅ **已发布** |
+| **Day 3** | [**精选 Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步**](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/) | 循环融合依赖合法性判定、MLIR One-Shot Bufferization 别名分析与就地复用、寄存器溢出与 Rematerialization、Cluster Barrier 调度约束、弱内存模型与缓存一致性 | ✅ **已发布** |
+| **Day 4** | [**精选 Day 4：GlobalISel、Fragment 布局、发散展开与异步流水**](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/) | GlobalISel 架构演进与合法化、Tensor Core Fragment 寄存器布局与 RA 防打乱、发散循环展开与 Warp Vote 谓词化、异步拷贝流水线（TMA）依赖调度、Post-RA 延迟掩盖与 Scoreboard 槽位管理 | ✅ **已发布** |
+| **Day 5** | [**精选 Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划**](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/) | MachineLICM 发散不变式过滤陷阱、I-Cache Thrashing 与激进内联博弈、Live Range Splitting 与 GPU 专属 Spill Cost、Tensor 生命周期调度与显存复用、GPU 异常（Trap/Assert）与全局 Error Ring Buffer | ✅ **已发布** |
+| **Day 6** | [**精选 Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优**](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/) | TargetHazardRecognizer 流水线冲突判定、Hopper 分布式共享内存 (DSMem) 跨块通信、标量化与宽向量动态博弈、AI 编译器 Auto-Tuning 代价模型、Warp 原语与 Mask 传播消除 | ✅ **已发布** |
+| **Day 7** | [**精选 Day 7：参数传递、发射端口饥饿、动态调用与内存布局**](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/) | Kernel 参数传递与 Parameter Space 映射、Issue Port Starvation 与异构管线交织、间接函数调用与动态并行编译挑战、atomicrmw 弱内存模型硬件 Qualifier 生成、Layout Propagation 与 Smem 暂存转置 | ✅ **已发布** |
+| **Day 8** | [**精选 Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工**](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/) | MLIR Dialect 渐进降级与硬件属性透传、One-Shot Bufferization 与动态/静态共享内存映射、SCF/Affine 循环到 GPU 线程拓扑映射、GreedyPatternRewriter 硬件原语匹配与 Fallback、MLIR 与 LLVM 后端职责边界 | ✅ **已发布** |
+| **Day 3** | [**精选 Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步**](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/) | 循环融合依赖合法性判定、MLIR One-Shot Bufferization 别名分析与就地复用、寄存器溢出与 Rematerialization、Cluster Barrier 调度约束、弱内存模型与缓存一致性 | ✅ **已发布** |
+| **Day 4** | [**精选 Day 4：GlobalISel、Fragment 布局、发散展开与异步流水**](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/) | GlobalISel 架构演进与合法化、Tensor Core Fragment 寄存器布局与 RA 防打乱、发散循环展开与 Warp Vote 谓词化、异步拷贝流水线（TMA）依赖调度、Post-RA 延迟掩盖与 Scoreboard 槽位管理 | ✅ **已发布** |
+| **Day 5** | [**精选 Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划**](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/) | MachineLICM 发散不变式过滤陷阱、I-Cache Thrashing 与激进内联博弈、Live Range Splitting 与 GPU 专属 Spill Cost、Tensor 生命周期调度与显存复用、GPU 异常（Trap/Assert）与全局 Error Ring Buffer | ✅ **已发布** |
+| **Day 6** | [**精选 Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优**](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/) | TargetHazardRecognizer 流水线冲突判定、Hopper 分布式共享内存 (DSMem) 跨块通信、标量化与宽向量动态博弈、AI 编译器 Auto-Tuning 代价模型、Warp 原语与 Mask 传播消除 | ✅ **已发布** |
+| **Day 7** | [**精选 Day 7：参数传递、发射端口饥饿、动态调用与内存布局**](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/) | Kernel 参数传递与 Parameter Space 映射、Issue Port Starvation 与异构管线交织、间接函数调用与动态并行编译挑战、atomicrmw 弱内存模型硬件 Qualifier 生成、Layout Propagation 与 Smem 暂存转置 | ✅ **已发布** |
+| **Day 8** | [**精选 Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工**](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/) | MLIR Dialect 渐进降级与硬件属性透传、One-Shot Bufferization 与动态/静态共享内存映射、SCF/Affine 循环到 GPU 线程拓扑映射、GreedyPatternRewriter 硬件原语匹配与 Fallback、MLIR 与 LLVM 后端职责边界 | ✅ **已发布** |
 
 ### 模块一：GPGPU 体系结构与硬件机制（地基篇）
 

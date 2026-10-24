@@ -287,4 +287,5 @@ flowchart TD
 ---
 
 > 👈 **上一期回顾**：**[Day 1：体系结构、控制流、LLVM 优化与内存模型](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/)**
+> 👉 **下一期推荐**：**[Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/)**
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
