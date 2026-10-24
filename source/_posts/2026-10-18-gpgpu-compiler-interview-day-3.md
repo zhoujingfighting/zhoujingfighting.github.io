@@ -145,35 +145,25 @@ $$\\Delta \\text{Cost} = \\text{Cost}*{\\text{fused}} - (\\text{Cost}*{L1} + \\t
 
 #### 1. MLIR Dialect 下降（Lowering）典型流水线
 
-MLIR 采用渐进式下降（Progressive Lowering）设计，从抽象的高层图语义逐步转换为贴近硬件特性的机器码生成方言：+------------------------------------+
+MLIR 采用渐进式下降（Progressive Lowering）设计，从抽象的高层图语义逐步转换为贴近硬件特性的机器码生成方言：
 
+```text
++------------------------------------+
 |   linalg / tensor Dialect          | (高层：表达 Tensor 形状、表达无侧副作用的数据流)
-
 +------------------------------------+
-
                   |
-
                   |  1. One-Shot Bufferization (Tensor -> MemRef)
-
                   v
-
 +------------------------------------+
-
 |   linalg / memref / scf Dialect    | (中层：结构化控制流 scf.for/parallel，显示内存访问)
-
 +------------------------------------+
-
                   |
-
                   |  2. Tiling & Thread/Block Mapping (分块并映射到 GPU 网格)
-
                   v
-
 +------------------------------------+
-
 |   gpu / nvvm / rocdl / llvm        | (底层：GPU 线程索引, NVVM IR / ROCDL IR)
-
 +------------------------------------+
+```
 
 * **Step 1: Tensor 到 MemRef 的转换（Bufferization）**：将 Value-based 的抽象 Tensor 操作转化为 Pointer-based 的显示内存读写操作（`memref`）。  
 * **Step 2: Loop Tiling & Distribution**：使用 `linalg.tile_to_forall_op` 或 `scf.tile` 将高维矩阵运算划分为 Block 级与 Thread 级块，将循环轴映射为 `gpu.block_id` 和 `gpu.thread_id`。  
@@ -201,25 +191,20 @@ MLIR 的 **One-Shot Bufferization** 采用基于 SSA 的依赖图分析，决定
 
 #### 1. Spill 与 Rematerialization 权衡策略
 
-在寄存器分配（Register Allocation, RA）阶段，当某点活活跃变量（Live Ranges）数量超过 GPU 硬件限制（如每个 Warp 最大 255 个寄存器）时，编译器必须采取措施削减活跃变量。              寄存器压力过高 (Live Range > Hardware Limits)
+在寄存器分配（Register Allocation, RA）阶段，当某点活活跃变量（Live Ranges）数量超过 GPU 硬件限制（如每个 Warp 最大 255 个寄存器）时，编译器必须采取措施削减活跃变量。
 
+```text
+              寄存器压力过高 (Live Range > Hardware Limits)
                                    |
-
                   +----------------+----------------+
-
                   |                                 |
-
          [Rematerialization]                  [Register Spill]
-
     (代价低/无内存访问操作)               (代价高/涉及 Local Memory)
-
                   |                                 |
-
     * 重新计算基地址偏移                    * 将寄存器内容写回
-
     * 常量 / 简单算术逻辑                  * L1/L2 缓存及 Local Memory
-
     * 重新生成 Thread ID 逻辑              * 产生显存流量与延迟
+```
 
 * **Rematerialization（重计算）原理**：  
   * 若某个活跃变量的值可以通过低成本计算轻松重新得到（例如：常量加载、简单的指针偏移计算、`threadIdx.x * stride` 等），编译器会在该变量被使用的地方**丢弃（Kill）** 该寄存器，并在需要该值的位置重新插入计算指令。  
@@ -255,13 +240,15 @@ $$\\text{Cost}*{\\text{Spill}} = \\text{Latency}*{\\text{Local_Store}} + \\text{
 在 LLVM IR 中，硬件屏障被表征为目标特定的 **Intrinsic 指令**，并结合内存屏障（Memory Fence）及同步作用域（SyncScope）属性。
 
 对于 NVIDIA Hopper 架构的 Cluster Barrier，LLVM IR 通常表征为：m  
-; 显式 Cluster 级别 barrier 指令  
+; 显式 Cluster 级别 barrier 指令
+```llvm
 call void @llvm.nvvm.barrier.cluster.wait()
 
 ; 带 SyncScope 的硬件屏障与内存屏障组合  
 fence syncscope("cluster") release  
 call void @llvm.nvvm.barrier.cluster.arrive()  
 fence syncscope("cluster") acquire
+```
 
 * **`syncscope("cluster")`**：告诉编译器分析 pass（如 Alias Analysis, LICM），该内存屏障的作用域限定在同一个 Cluster 内部的所有 Thread Blocks 之间，超越了传统的 `syncscope("block")`（即 `__syncthreads()`），但小于 `syncscope("agent")` 或 `syncscope("system")`。
 
@@ -269,23 +256,19 @@ fence syncscope("cluster") acquire
 
 在 LLVM 后端编译阶段，指令调度器（Instruction Scheduler）将基本块中的指令构建为 ScheduleDAG（Node 表示指令，Edge 表示依赖关系）。
 
+    
+
+```text
     前序访存指令 (Global Store A)
-
                |
-
          [ Chain Edge ] (内存/控制依赖)
-
                v
-
 Cluster Barrier (屏障指令 Node)
-
                |
-
          [ Chain Edge ] (内存/控制依赖)
-
                v
-
     后续访存指令 (Global Load B)
+```
 
 1. **构建 Chain 依赖边（Chain Edges）**：
 
@@ -329,14 +312,14 @@ GPU 内存模型是分层级的，包含了 **Memory Model**（如 Acquire/Relea
 
 GPU 的 L1 Cache 通常是 **Non-coherent（不保证硬件一致性）** 或采用 Write-Through / Write-back 混合策略。因此，Release-Acquire 语义不能仅靠普通的 Store/Load 指令完成，编译器必须插入缓存控制指令。
 
+```text
 Thread A (Release Side)                      Thread B (Acquire Side)
-
----
-
+───────────────────────                      ───────────────────────
 1. Write Data to Memory                      1. Loop until Flag == 1  
 2. Store-Release (Flag = 1)                  2. Load-Acquire (Data)  
    ├── Write-back L1 Cache (Flush)              ├── Invalidate L1 Cache  
    └── Memory Barrier                           └── Memory Barrier
+```                           └── Memory Barrier
 
 1. **Release 语义（发送端）**：
 

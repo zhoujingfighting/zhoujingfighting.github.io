@@ -112,7 +112,11 @@ GPGPU SM 内部由多个 Warp Scheduler 驱动。每个 Scheduler 在每个 Cloc
 
 #### 2. LLVM Machine Scheduler 与 Pipeline-Aware 调度
 
-LLVM 的 `MachineScheduler` (MISched) 在 RA（Register Allocation）前或后构建依赖图（DAG），并利用 `TargetScheduleModel` 进行指令重排：[DAG 构建] -> [计算 WriteProcRes / Latency] -> [ Top-Down/Bottom-Up 遍历 ] -> [微架构 Hazard 过滤] -> [指令重排]
+LLVM 的 `MachineScheduler` (MISched) 在 RA（Register Allocation）前或后构建依赖图（DAG），并利用 `TargetScheduleModel` 进行指令重排：
+
+```text
+[DAG 构建] -> [计算 WriteProcRes / Latency] -> [ Top-Down/Bottom-Up 遍历 ] -> [微架构 Hazard 过滤] -> [指令重排]
+```
 
 * **资源建模（ProcResource）**：后端为 GPU 微架构的每个硬件管线定义 `ProcResource`（如 `DefResource<ALU_PIPE>`、`DefResource<SFU_PIPE>`）。每条 SASS/PTX 指令在 Target Itinerary/SchedMachineModel 中声明其占用的 Resource Units 及占用 Cycles（Issue Latency 与 Execution Latency）。  
 * **端口压力跟踪（Resource Tracking）**：调度器使用 `SchedBoundary` 追踪当前已调度指令序列对各个 `ProcResource` 的消耗百分比。当检测到 `SFU_PIPE` 的压力接近 100% 而 `ALU_PIPE` 处于低利用率时，调度器会提升候选队列中 `ALU_PIPE` 指令的优先级（Priority Metric）。
@@ -139,13 +143,17 @@ LLVM 的 `MachineScheduler` (MISched) 在 RA（Register Allocation）前或后�
 #### 2. 编译器级解决机制
 
 * **静态去虚拟化（Devirtualization）与 Class Hierarchy Analysis (CHA)**：  
-  编译器利用 LLVM Whole Program Optimization (WPO) / LTO，搜集类型继承树及函数指针赋值点。若证明某指针仅可能指向 `FuncA` 或 `FuncB`，则将间接调用改写为显式的条件分支直接调用：// 优化前: fp(arg);  
-    
-  // 优化后:  
-    
-  if (fp == FuncA) FuncA(arg);  
-    
-  else if (fp == FuncB) FuncB(arg);  
+  编译器利用 LLVM Whole Program Optimization (WPO) / LTO，搜集类型继承树及函数指针赋值点。若证明某指针仅可能指向 `FuncA` 或 `FuncB`，则将间接调用改写为显式的条件分支直接调用：
+
+```cpp
+// 优化前: fp(arg);
+
+// 优化后:
+if (fp == FuncA) 
+    FuncA(arg);
+else if (fp == FuncB) 
+    FuncB(arg);
+```  
     
   该转换允许 LLVM 后续对 `FuncA` 和 `FuncB` 执行 Inline，并精细化控制各分支下的寄存器使用。  
     
@@ -167,7 +175,11 @@ LLVM 的 `MachineScheduler` (MISched) 在 RA（Register Allocation）前或后�
 
 LLVM IR 标准的 `atomicrmw` 指令包含两个关键属性：`AtomicOrdering`（如 `Monotonic`, `Acquire`, `Release`, `SequentiallyConsistent`）与 `SyncScope`（如 `syncscope("subgroup")`, `syncscope("workgroup")`, `syncscope("agent")`, `syncscope("cross-system")`）。
 
-后端降级逻辑映射关系如下表：LLVM IR atomicrmw -> SelectionDAG (ATOMIC_RMW) -> Target-specific ISA Node -> SASS/AMD ISA
+后端降级逻辑映射关系如下表：
+
+```text
+LLVM IR atomicrmw -> SelectionDAG (ATOMIC_RMW) -> Target-specific ISA Node -> SASS/AMD ISA
+```
 
 | LLVM SyncScope | PTX Memory Scope Qualifier | AMDGPU Memory Scope Qualifier | 硬件影响范围 |
 | :---- | :---- | :---- | :---- |
@@ -188,17 +200,16 @@ LLVM IR 标准的 `atomicrmw` 指令包含两个关键属性：`AtomicOrdering`�
 
 #### 3. 错误降级的硬件级后果
 
-若编译器在降级过程中漏配修饰符（例如误将 `system` Scope 降级为 `cta` Scope，或遗漏了 `Acquire` 屏障）：[Thread A (SM 0)]                              [Thread B (SM 1)]
+若编译器在降级过程中漏配修饰符（例如误将 `system` Scope 降级为 `cta` Scope，或遗漏了 `Acquire` 屏障）：
 
+```text
+[Thread A (SM 0)]                              [Thread B (SM 1)]
 写入 L1 Cache (Scope: CTA 误用)                  从 L2 Cache 读取 (Scope: GPU)
-
       |                                              |
-
  (仅刷入 SM0 L1)                                 (无法感知 SM0 L1 脏数据)
-
       v                                              v
-
  状态: L1 包含新值, L2 仍为旧值                     状态: 读取到旧值 (Stale Data)
+```
 
 1. **静默数据竞争（Silent Data Corruption）**：Thread A 在 SM 0 执行原子写，由于降级为 `.cta`，硬件仅保证 SM 0 的 L1 Cache 或 Register/Shared 空间更新。Thread B 在 SM 1 读取同一 Global Address 时，SM 1 的 L1 Cache 依然命中了本地的旧缓存行（Stale Cache Line），造成数据一致性破坏。  
 2. **内存重排序越界（Out-of-Order Memory Access Violation）**：若 `Release` 降级丢失，编译器可能将 `atomicrmw` 之后的普通 Load/Store 重排序到原子写之前，导致其他 Thread 在观察到 Flag 置位时，关联的 Payload 数据尚未真正写入 Main Memory。
@@ -220,34 +231,32 @@ GPU 的 Memory Pipeline 以 32 字节（Warp 内 8 个 4-byte 元素）或 128 �
 
 #### 2. 图级别与 IR 级别的 Layout Propagation 优化
 
-为了从源头消除 Strided Memref，编译器在 IR 层（如 MLIR `linalg` / `tensor` Dialect）引入 Layout Propagation：[OpA (NCHW)] -> [Transpose (NCHW->NHWC)] -> [OpB (Layout-Insenstive)] -> [OpC (NHWC)]
+为了从源头消除 Strided Memref，编译器在 IR 层（如 MLIR `linalg` / `tensor` Dialect）引入 Layout Propagation：
 
+```text
+[OpA (NCHW)] -> [Transpose (NCHW->NHWC)] -> [OpB (Layout-Insenstive)] -> [OpC (NHWC)]
                                 |
-
                    (Layout Propagation 推导)
-
                                 v
-
 [OpA (NCHW)] -----------------> [OpB (NCHW)] --------------------------> [OpC (NCHW->NHWC)]
+```
 
 * **Layout 连通图构建**：编译器分析控制流图/数据流图中的所有 Node。将算子分为 Layout-Sensitive（如 Convolution、Gemm）与 Layout-Insensitive（如 Elementwise Add、Relu、Softmax）。  
 * **布局逆向/正向传播**：若 `OpB` 为 Elementwise 算子，编译器清除其中间插入的 `Transpose` / `ReinterpretCast` 算子，将 `NHWC` 的 Layout 要求沿数据流图向上或向下传播，修改 `OpB` 的 Loop Nest 映射关系，使得整个子图在统一的数据布局下执行，从而彻底消除运行时的 Transpose Kernel 开销。
 
 #### 3. 硬件级补偿：Shared Memory Staging Transpose
 
-对于算法上无法避免的 Strided 访存（如 GEMM 中的 Matrix B 转置 $D = A \\times B^T$），编译器生成包含 Shared Memory 暂存转置的代码：Global Memory (Strided/Uncoalesced Read)
+对于算法上无法避免的 Strided 访存（如 GEMM 中的 Matrix B 转置 $D = A \\times B^T$），编译器生成包含 Shared Memory 暂存转置的代码：
 
+```text
+Global Memory (Strided/Uncoalesced Read)
          |  (Warp 协同按行连续加载 + Packing)
-
          v
-
 Shared Memory (带 Padding 的二维 Tile 数组: [TILE_SIZE][TILE_SIZE + 1])
-
          |  (按列无 Bank Conflict 读取)
-
          v
-
 Register File  (提供给 Tensor Core / Vector ALU 进行 Compute)
+```
 
 1. **Coalesced Global Load**：编译器重构 Global-to-Shared 的加载逻辑。让 Warp 内的 Thread 依然沿 Global Memory 的连续方向读取数据（确保 Global Coalescing），写入 Shared Memory。  
 2. **Swizzling / Padding 消除 Bank Conflict**：在 Shared Memory 声明中，编译器自动加入 Padding（如将 `smem[32][32]` 扩展为 `smem[32][33]`）或应用 XOR Swizzling 地址映射：  

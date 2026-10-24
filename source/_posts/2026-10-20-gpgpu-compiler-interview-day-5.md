@@ -148,21 +148,18 @@ GPU 编译器的 Inliner 必须使用比 CPU 更为保守和严格的成本模�
 
 编译器在评估是否切分/溢出变量 $v$ 时，使用以下精确的加权模型：
 
-$$\\text{SpillCost}(v) = \\frac{\\sum_{i \\in \\text{Uses}(v)} \\left( \\text{Weight}(i) \\times \\text{MemLatency}(i) \\times \\text{DivergenceFactor}(i) \\right) - \\text{RematBenefit}(v)}{\\Delta \\text{RegisterPressure}}$$                       [ 评估变量 v 的 Spill Cost ]
+$$\\text{SpillCost}(v) = \\frac{\\sum_{i \\in \\text{Uses}(v)} \\left( \\text{Weight}(i) \\times \\text{MemLatency}(i) \\times \\text{DivergenceFactor}(i) \\right) - \\text{RematBenefit}(v)}{\\Delta \\text{RegisterPressure}}$$                       
 
+```text
+                       [ 评估变量 v 的 Spill Cost ]
                                     │
-
            ┌────────────────────────┴────────────────────────┐
-
            ▼                                                 ▼
-
    【内存与调度开销】                                 【Remat & 架构优化】
-
    • Loop Depth Weight (10^N)                         • 可重算？(Rematerialization)
-
    • Memory Coalescing Check                          • 线程间溢出 (Shared Memory Spill)
-
    • Divergence Factor (Divergent Mask)               • Vector Register Packing
+```
 
 1. **循环深度指数级惩罚（Loop Depth Weighting）**  
    * 循环内部的 Spill 权重按照 $10^{\\text{LoopDepth}}$ 呈指数增长。对于 Loop 内部的 Live Range，优先选择 **Rematerialization（重新计算）** 而非 Spill。如果一个值可以通过简单算术指令（如 `SASS` 中的 `IMAD` 或 `LEA`）重新算得，其 Spill Cost 被设为无限大（优先重算）。  
@@ -185,15 +182,13 @@ $$\\text{SpillCost}(v) = \\frac{\\sum_{i \\in \\text{Uses}(v)} \\left( \\text{We
    * **边**：若两个 Tensor 的生命周期区间重叠（$I_u \\cap I_v \\neq \\emptyset$），则在它们之间连一条边，表示不能共享同一块物理显存。  
    * **着色/偏移量分配（First-Fit / Best-Fit Memory Planning）**：考虑 Tensor 的 Size 与 Alignment 要求，利用 Greedy First-Fit 或 Offset-Based Storage Allocation 算法，在一维地址空间中为无干涉边的 Tensor 分配重叠的地址段（Block Reuse）。
 
+```text
 Tensor A: [================] (Time 0 -> 4)  ──┐
-
 Tensor B:        [=========] (Time 2 -> 6)    ├── A 与 B 生命周期重叠 (不能复用)
-
                                               │
-
 Tensor C:                     [======]        └── B 与 C 生命周期重叠；A 与 C 不重叠 (可复用 A 的地址)
-
           0   1   2   3   4   5   6   7 (Time)
+```
 
 ### **动态控制流与 Dynamic Shape 的挑战及解决方案**
 
@@ -216,19 +211,15 @@ Tensor C:                     [======]        └── B 与 C 生命周期重�
 2. **错误信息环形缓冲区（Global Error Ring Buffer）**  
    * 编译器在系统 Module 中隐式声明全局内存结构体（Error Buffer）：
 
+```cpp
 struct GPUErrorBuffer {
-
     uint32_t trap_flag;       // 异常发生标志
-
     uint32_t error_code;      // 错误类型
-
     uint32_t block_id[3];     // 触发异常的 Block
-
     uint32_t thread_id[3];    // 触发异常的 Thread / Lane
-
     uint64_t source_loc_ptr;  // 指向编译期嵌入的源码文件名与行号字符串指针
-
 };
+```
 
 * 在触发 `TRAP` 前，编译器生成代码，利用原子操作（`atomicCAS`）争抢 Error Buffer 的写入槽位，将当前 Warp 的 `blockIdx`、`threadIdx` 以及编译期固化的 Debug 信息地址写入 Global Memory。  
 3. **保存现场与轻量级 Stack Trace**  
@@ -236,37 +227,26 @@ struct GPUErrorBuffer {
 
 ### **软硬件协同与 Host 端捕获流程**
 
+ 
+
+```text
  [ GPU Warp 触发 Assert/Trap ]
-
                │
-
                ▼
-
  [ 1. 原子写入 Error Buffer ] ───> 保存 Block/Thread ID 与 Debug Info 指针
-
                │
-
                ▼
-
  [ 2. 执行 TRAP / BPT 指令 ]
-
                │
-
                ▼
-
  [ 3. 硬件挂起当前 Warp ] ───────> 向 GPU Driver 抛出 Hardware Exception Interrupt
-
                │
-
                ▼
-
  [ 4. Host 端 Driver 捕获异常 ]
-
                │
-
                ▼
-
  [ 5. 驱动读取 Error Buffer ] ───> 解析 Debug Info 映射表，打印精确源码行号与堆栈
+```
 
 1. **Hardware Exception Vector -> Driver Interrupt**  
    * GPU 硬件捕获到 `TRAP` 指令后，将对应的 Warp 置于 Error 状态并挂起，同时向 Host 驱动发送中断（Interrupt）或设置 Event 状态位。  

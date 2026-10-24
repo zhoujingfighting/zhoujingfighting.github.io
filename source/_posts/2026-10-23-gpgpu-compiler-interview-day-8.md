@@ -143,16 +143,28 @@ mindmap
 
 #### **静态 Shared Memory 映射**
 
-* 当高层代码声明一个固定 shape 的 Tensor 并指定存放在 Shared Memory 时（如带有 `#gpu.address_space<workgroup>` 标记），Bufferization 将其转换为：%0 = memref.alloc() : memref<128x64xf32, #gpu.address_space<workgroup>>  
+* 当高层代码声明一个固定 shape 的 Tensor 并指定存放在 Shared Memory 时（如带有 `#gpu.address_space<workgroup>` 标记），Bufferization 将其转换为：
+
+```mlir
+%0 = memref.alloc() : memref<128x64xf32, #gpu.address_space<workgroup>>
+```  
 * 降级至 `llvm` Dialect 时，该 `memref.alloc` 不会被转换为 `malloc` 或 `cudaMalloc` 调用，而是直接转换为 **Global Variable**，其 Storage Class 设置为 `InternalLinkage`，Address Space 设为 3（Shared/Workgroup）。在 PTX 中生成 `.shared .align 4 .b8 alloc_0[32768]`。
 
 #### **动态 Shared Memory 映射**
 
 * 当 Shared Memory 的大小依赖运行时参数（如 Block 维度）时，无法在静态全局作用域分配。  
-* MLIR 使用 `gpu.dynamic_shared_memory` 操作：%shmem = gpu.dynamic_shared_memory : memref<?xi8, #gpu.address_space<workgroup>>  
+* MLIR 使用 `gpu.dynamic_shared_memory` 操作：
+
+```mlir
+%shmem = gpu.dynamic_shared_memory : memref<?xi8, #gpu.address_space<workgroup>>
+```  
 * **Lowering 到 LLVM IR 的转换流程**：  
   1. `gpu.dynamic_shared_memory` 被重写为一个指向外部符号的 `llvm.mlir.addressof` 操作。  
-  2. 编译器在 LLVM Module 头部隐式插入一个外部动态共享内存全局变量声明：@dynamic_shmem = external addrspace(3) global [0 x i8], align 16  
+  2. 编译器在 LLVM Module 头部隐式插入一个外部动态共享内存全局变量声明：
+
+```llvm
+@dynamic_shmem = external addrspace(3) global [0 x i8], align 16
+```  
   3. 通过 `llvm.getelementptr` 获取该全局变量的起始地址，并将其 `bitcast` 转换为实际所需的数据类型指针（如 `float*`）。  
   4. 最终在 PTX 中输出为 `extern .shared .align 16 .b8 dynamic_shmem[];`，其真实物理大小在 Kernel 发射（`cudaLaunchKernel` 的第 4 个参数 `dynamicSharedMemSize`）时由 Runtime 动态传入。
 
@@ -213,33 +225,24 @@ mindmap
 
 #### 2. 硬件原语匹配失败（Fallback）路径机制
 
-针对矩阵乘法（GEMM）下发至 GPU 硬件 Tensor Core 原语的匹配，MLIR 采用分层的降级策略：               [linalg.matmul / vector.contract]
+针对矩阵乘法（GEMM）下发至 GPU 硬件 Tensor Core 原语的匹配，MLIR 采用分层的降级策略：
 
+```text
+               [linalg.matmul / vector.contract]
                                |
-
-               (Shape & Type Check Pass)
-
+                   (Shape & Type Check Pass)
                                |
-
-         +---------------------+---------------------+
-
-         | Match Success                             | Match Fail
-
-         v                                           v
-
-[vector.mma.sync / vector.mfma]             [vector.outerproduct / Unroll]
-
-         |                                           |
-
-         v                                           v
-
-[LLVM NVVM/ROCDL Intrinsics]                [scf.for + Elementwise FMA]
-
-         |                                           |
-
-         v                                           v
-
-(PTX: mma.sync.aligned...)                  (PTX: fma.rn.f32...)
+             +-----------------+-----------------+
+             | Match Success                     | Match Fail
+             v                                   v
+[vector.mma.sync / vector.mfma]     [vector.outerproduct / Unroll]
+             |                                   |
+             v                                   v
+[LLVM NVVM/ROCDL Intrinsics]        [scf.for + Elementwise FMA]
+             |                                   |
+             v                                   v
+(PTX: mma.sync.aligned...)          (PTX: fma.rn.f32...)
+```
 
 #### 1. 匹配条件检查（Pattern Matching）
 
@@ -275,51 +278,33 @@ mindmap
 
 #### 2. MLIR 与 LLVM 后端的职责划分与交接点
 
-双方理想的交接点位于 **`llvm` Dialect（转换为标准 LLVM IR 文本或 Bitcode 的临界点）**。+-------------------------------------------------------------------+
+双方理想的交接点位于 **`llvm` Dialect（转换为标准 LLVM IR 文本或 Bitcode 的临界点）**：
 
-|                        MLIR Framework                             |
-
-|                                                                   |
-
-|   [High-Level Dialects: Tosa / Linalg / Vector / GPU / SCF]      |
-
-|                               |                                   |
-
-|   - Tiling, Fusing, Vectorization                                 |
-
-|   - Memory Layout Optimization & Bufferization                    |
-
-|   - Explicit GPU Thread/Block Mapping                             |
-
-|                               v                                   |
-
-|                        [LLVM Dialect]                             |
-
-+-------------------------------+-----------------------------------+
-
-                                | (TranslateToLLVMIR)
-
-================================v===================================
-
-                                | (LLVM IR / Bitcode)
-
-+-------------------------------+-----------------------------------+
-
-|                     LLVM Backend (NVPTX / AMDGPU)                 |
-
-|                                                                   |
-
-|   - Target-Specific LLVM IR Passes                                |
-
-|   - Instruction Selection (SelectionDAG / GlobalISel)           |
-
-|   - Register Allocation & Spilling                                |
-
-|   - Machine Instruction Scheduling & Hazard Recognition           |
-
-|   - Assembly / Binary Assembly Emission (PTX / SASS / HSACO)      |
-
+```text
 +-------------------------------------------------------------------+
+|                        MLIR Framework                             |
+|                                                                   |
+|   [High-Level Dialects: Tosa / Linalg / Vector / GPU / SCF]      |
+|                               |                                   |
+|   - Tiling, Fusing, Vectorization                                 |
+|   - Memory Layout Optimization & Bufferization                    |
+|   - Explicit GPU Thread/Block Mapping                             |
+|                               v                                   |
+|                        [LLVM Dialect]                             |
++-------------------------------+-----------------------------------+
+                                | (TranslateToLLVMIR)
+================================v===================================
+                                | (LLVM IR / Bitcode)
++-------------------------------+-----------------------------------+
+|                     LLVM Backend (NVPTX / AMDGPU)                 |
+|                                                                   |
+|   - Target-Specific LLVM IR Passes                                |
+|   - Instruction Selection (SelectionDAG / GlobalISel)            |
+|   - Register Allocation & Spilling                                |
+|   - Machine Instruction Scheduling & Hazard Recognition           |
+|   - Assembly / Binary Assembly Emission (PTX / SASS / HSACO)      |
++-------------------------------------------------------------------+
+```
 
 #### **MLIR 必须完成的工作（高层与中层）**
 

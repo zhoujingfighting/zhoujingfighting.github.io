@@ -98,13 +98,17 @@ LLVM 的 `UniformityAnalysis` 采用基于数据流图的前向标记与不动�
 * **数据依赖（Data Dependency）**：若指令 $I$ 的操作数中包含 Divergent 变量，则 $I$ 的计算结果也是 Divergent（除非属于特殊的 Warp 级规约原语，如 `__all_sync` 将结果统一广播）。
 * **控制依赖（Sync Divergence，高频考点）**：
   看下面这段极其经典的代码：
-  ```cpp
+  
+
+```cpp
   int x = 0;
   if (threadIdx.x < 16) {
       x = 1;
   }
   // 汇聚点：x = phi(1, 0)
-  ```
+  
+
+```
   * 变量 `x` 在两个分支被赋的值都是常量（`1` 和 `0` 本身皆为 Uniform）。
   * 但因为判断条件 `threadIdx.x < 16` 是发散的，导致 Warp 内部前 16 个线程走了 `Then` 块，后 16 个线程走了默认路径。
   * 在紧邻后支配节点（IPDOM）处的 $\phi$ 节点（`phi [1, %then], [0, %entry]`）汇总时，**不同线程在不同时间/空间获得了不同的值**。
@@ -253,7 +257,9 @@ flowchart TD
 * **LLVM `SIInsertWaitcnts` Pass**：
   * 该 Pass 位于 CodeGen 的尾声。它在基本块内维护数据流跟踪，记录每个寄存器的写入指令及其在途状态。
   * 当一条指令即将使用（Use）某个由 `global_load` 写入的寄存器时，编译器计算从该 Load 到当前指令之间还积压了多少条未返回的访存，**精准插入等待指令**：
-    ```nasm
+    
+
+```nasm
     global_load_dword v1, v0, s[0:1] ; 发起访存 1 (vmcnt 增加)
     global_load_dword v2, v0, s[0:1] ; 发起访存 2 (vmcnt 增加)
     ; ... 执行其他不相关的算术指令 ...
@@ -261,7 +267,9 @@ flowchart TD
     v_add_f32 v3, v1, 1.0            ; 安全消费 v1
     s_waitcnt vmcnt(0)               ; 等待所有访存全部回包
     v_mul_f32 v4, v2, 2.0            ; 安全消费 v2
-    ```
+    
+
+```
 
 #### 3. NVIDIA 架构：SASS 物理指令控制码（Control Codes）与记分牌
 * PTX 是虚拟指令集，不暴露硬件细节。在底层汇编（`ptxas` 生成的 SASS）中，每条 128 位指令捆绑了专门的 **Control Codes（控制字）**：

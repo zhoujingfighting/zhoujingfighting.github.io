@@ -154,6 +154,7 @@ Tensor Core / Matrix Core 并非独立的标量/向量执行单元，而是由 W
 
 为在通用的编译器架构中容纳如此严苛的硬件约束，编译器采取了自顶向下的分层表征与约束保留策略：
 
+```text
 LLVM IR: Intrinsic (@llvm.nvvm.mma.m16n8k16...)  
 │  
 ▼  
@@ -167,6 +168,7 @@ Register Allocation: Reserve / Constraint Matching / Inline Spilling
 │  
 ▼  
 MC Layer: Strictly Aligned Physical Register Pair (如 R4..R7)
+```
 
 ##### 1. LLVM IR 层面的表征
 
@@ -183,8 +185,8 @@ MC Layer: Strictly Aligned Physical Register Pair (如 R4..R7)
     i32 %b0, 
 
     double %c0, double %c1, double %c2, double %c3
-
 )
+```
 
 #### 2. 后端寄存器分配（RA）防打乱机制
 
@@ -203,31 +205,23 @@ MC Layer: Strictly Aligned Physical Register Pair (如 R4..R7)
 
 #### 3.1 发散循环展开的权衡与负面效应
 
-GPU 的 SIMT 架构要求 Warp 内所有线程共享同一个程序计数器（PC）。当循环边界发散（如 for (int i = 0; i < threadIdx.x; ++i)）时，循环控制流的展开面临极高的代价。[发散循环展开决策树]
+GPU 的 SIMT 架构要求 Warp 内所有线程共享同一个程序计数器（PC）。当循环边界发散（如 for (int i = 0; i < threadIdx.x; ++i)）时，循环控制流的展开面临极高的代价。
 
+```text
+[发散循环展开决策树]
                ┌─────────────────────────┐
-
                │    分析循环迭代边界     │
-
                └────────────┬────────────┘
-
                             │
-
               ┌─────────────┴─────────────┐
-
               ▼                           ▼
-
       【静态已知 / 统一】          【动态发散 (Divergent)】
-
               │                           │
-
       ┌───────┴───────┐           ┌───────┴───────┐
-
       ▼               ▼           ▼               ▼
-
    全展开          部分展开    受限部分展开       禁止展开
-
  (Full Unroll)  (Factor N)   (Peeling+Unroll) (Keep Loop)
+```
 
 * **完全展开 vs 部分展开的权衡**：  
   * **完全展开（Full Unrolling）**：仅适用于迭代次数在编译期已知或全 Warp 统一（Uniform）的小循环。它能够完全消除分支跳转指令与循环计数器维护开销，暴露最大化的指令级并行（ILP）。  
@@ -242,55 +236,40 @@ GPU 的 SIMT 架构要求 Warp 内所有线程共享同一个程序计数器（P
 
 #### 1. 发散 `break` 的谓词化重构
 
-当循环内部包含发散的 if (condition) break; 时，编译器不会将其映射为硬件条件跳转，而是将其重构为 Active Mask / Execution Mask 的更新：[原始控制流]                    [谓词化与 Warp Vote 重构]
+当循环内部包含发散的 if (condition) break; 时，编译器不会将其映射为硬件条件跳转，而是将其重构为 Active Mask / Execution Mask 的更新：
 
+```text
+[原始控制流]                    [谓词化与 Warp Vote 重构]
    Loop Head                       Loop Head
-
        │                               │
-
    Calculate                       Calculate
-
        │                               │
-
   Divergent Cond                   Thread_Pred = Cond
-
-   /       \\                       Loop_Mask = Loop_Mask & ~Thread_Pred
-
+   /       \                       Loop_Mask = Loop_Mask & ~Thread_Pred
 Break     Continue                 
-
    │           │                   Active_Threads = Warp_Vote_Any(Loop_Mask)
-
  Exit      Next Iter               Branch_If_True (Active_Threads, Loop_Head)
-
                                        │
-
                                    Loop Exit
+```
 
 #### 2. 基于 Warp Vote 的 Early Exit 优化
 
 若单纯使用谓词控制，即便 Warp 中 31 个线程已经 `break`，只要还有 1 个线程在运行，整个 Warp 仍需陪跑。编译器通过插入 Warp Ballot 硬件指令解决此问题：; LLVM IR 伪代码：发散 Loop 内部的 Warp Vote 重构
-
+```llvm
 loop.body:
-
   %cond = icmp sgte i32 %val, %limit          ; 计算当前线程退出条件
-
   %active_mask = call i64 @llvm.nvvm.vote.ballot.sync(i32 -1, i1 %cond) ; 获取全 Warp 状态
-
   
-
   ; 检查是否所有活跃线程都已满足退出条件 (Early Exit)
-
   %all_exited = icmp eq i64 %active_mask, 0
-
   br i1 %all_exited, label %loop.exit, label %loop.continue
 
 loop.continue:
-
   ; 仅在未退出的线程上更新 Predicate，继续下一次迭代
-
   call void @llvm.amdgcn.wwm(i32 %new_state)
-
   br label %loop.body
+```
 
 通过引入 `Vote.Any` / `Vote.Ballot`，编译器在保持控制流单指令流（SIMD）特性的同时，实现了动态全员退出的快捷路径（Fast-path Break），极大地提升了发散循环的运行效率。
 
@@ -311,21 +290,18 @@ loop.continue:
 
 #### **调度器的依赖约束模型**
 
-调度器在构建数据依赖图（DAG）时，必须将异步令牌视为**隐式副作用资源（Implicit Side-Effect Resource）**，严格遵守以下约束：[Timeline / Dependency Graph]
+调度器在构建数据依赖图（DAG）时，必须将异步令牌视为**隐式副作用资源（Implicit Side-Effect Resource）**，严格遵守以下约束：
 
+```text
+[Timeline / Dependency Graph]
   Global Memory ──(cp.async)──► Shared Memory Buffer [Stage X]
-
                                       │
-
                                (commit_group)
-
                                       │
-
                                (wait_group N)  ◄── 调度器不可跨越此界限
-
                                       │
-
   Shared Memory ────(LDG/LDS)────► Register File ───► ALU Multiply
+```
 
 1. **Commit 完备性约束**：在发出 `wait_group N` 指令前，必须确保对应的 `cp.async` 已经被 `commit_group` 标记，否则 Wait 指令无法感知到该批次传输。  
 2. **管线深度匹配约束**：在 $K$ 级环形缓冲区（Software Pipelining）中，发射第 $t$ 轮拷贝后，必须精确插入 `wait_group (K-1)`，以允许最多 $K-1$ 个异步 Group 在后台重叠执行。  
@@ -354,17 +330,14 @@ loop.continue:
 * **失去 Spill 能力**：Post-RA 阶段无法再插入新的 Register Spill/Reload 代码。调度器必须在**绝对不超过当前物理寄存器分配结果**的前提下重排指令。  
 * **假性依赖（False Dependencies）激增**：物理寄存器的有限性引入了大量的 **WAR (Write-After-Read / 反依赖)** 和 **WAW (Write-After-Write / 输出依赖)**。
 
+```text
 [Post-RA 调度器的两难博弈]
-
 拉开高延迟 Load 与 Use 的间距 (追求高 ILP)
-
    │
-
    ├──► 延长物理寄存器的 Live Range
-
    │
-
    └──► 极易触发 WAR/WAW 硬件 Hazard，或迫使后续指令 Stall
+```
 
 #### **博弈策略：依赖图（DAG）的精确构建**
 
@@ -401,29 +374,23 @@ $$\\text{Priority} = \\alpha \\cdot \\text{CriticalPathLatency} - \\beta \\cdot 
 
 #### 2. 压力感知与 Scoreboard-Aware 调度算法
 
-Post-RA 调度器必须针对硬件 Scoreboard 的槽位数量（例如 NV 硬件仅有 6~8 个独立的 Scoreboard 槽位）进行**槽位分配与指令交错调度**：[Scoreboard 优化调度前 (极易 Stall)]
+Post-RA 调度器必须针对硬件 Scoreboard 的槽位数量（例如 NV 硬件仅有 6~8 个独立的 Scoreboard 槽位）进行**槽位分配与指令交错调度**：
 
+```text
+[Scoreboard 优化调度前 (极易 Stall)]
   LDG.E R0, [R10]       ; 占用 Scoreboard #SB0
-
   ADD   R5, R6, R7      ; 无关 ALU 指令
-
   MUL   R0, R0, R2      ; 立即等待 #SB0 ──► 硬件强行 Stall 300+ 个 Cycle!
 
 [Scoreboard-Aware 调度后 (延迟完全掩盖)]
-
   LDG.E R0, [R10]       ; 发起异步 Load (#SB0)
-
   ADD   R5, R6, R7      ; 插入不占用 #SB0 的计算
-
   FMA   R8, R9, R11     ; 插入不占用 #SB0 的计算
-
   LDG.E R3, [R12]       ; 发起另一个 Load (#SB1)
-
   ... (其他独立指令) ...
-
   WAIT  #SB0            ; 此时数据已就绪，无缝执行
-
-  MUL   R0, R0, R2      
+  MUL   R0, R0, R2
+```
 
 #### **调度器的核心优化步骤：**
 

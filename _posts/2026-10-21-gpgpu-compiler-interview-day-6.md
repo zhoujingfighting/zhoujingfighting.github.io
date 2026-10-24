@@ -101,33 +101,22 @@ mindmap
   * GPU 架构（如 NVIDIA SASS 或 AMD GCN/RDNA）引入了硬件依赖屏障机制（如 NVIDIA 的 Dependency Barriers / Barrier Masks，或 AMD 的 `s_waitcnt`）。  
   * Hazard Recognizer 会在 Post-RA 阶段追踪异步指令的 `Scoreboard ID`。当遇到读写未完成异步指令目标寄存器的后续指令时，Hazard Recognizer 会判定存在 Hazard，并触发特定的 Pass 在指令前插入显式的等待原语（例如 `s_waitcnt vmcnt(0)` 或设置 SASS 指令头部的 Wait Mask），从而清空 Hazard 状态。
 
+```text
 [ScheduleDAG Post-RA]
-
        │
-
        ▼
-
  检查 Ready Queue 中的 SU ──► 调用 getHazardType(SU)
-
        │                              │
-
        ├───────────────┬──────────────┘
-
        ▼               ▼
-
   [NoHazard]        [Hazard]
-
        │               │
-
        │               ├──► 存在其他无 Hazard 指令? ──► [Yes] ──► 调度该独立指令
-
        │               │                                              │
-
        │               └──► [No] ──► 插入 NOP 或 设置 Wait-State ──────┘
-
        ▼
-
  调用 EmitInstruction(SU) ──► 更新寄存器 Scoreboard / 硬件 Pipeline 状态
+```
 
 ---
 
@@ -146,23 +135,19 @@ mindmap
 
 #### 2. 跨 SM 数据交换的同步屏障与 ScheduleDAG 约束
 
-由于跨 SM 访问涉及到非本地互联网络（Network-on-Chip, NoC），内存延迟和乱序访问的复杂性显著增加。编译器必须显式维护内存一致性。SM 0 (Producer)                      SM 1 (Consumer)
+由于跨 SM 访问涉及到非本地互联网络（Network-on-Chip, NoC），内存延迟和乱序访问的复杂性显著增加。编译器必须显式维护内存一致性。
 
+```text
+SM 0 (Producer)                      SM 1 (Consumer)
 ────────────────                      ────────────────
-
 Write to DSMem Address (Remote)
-
   │
-
   ▼
-
 fence.sc.cluster ──(NoC Signal)──► cluster.barrier.wait
-
                                        │
-
                                        ▼
-
                                    Read DSMem Address (Local)
+```
 
 * **内存栅栏与域（Memory Scopes）的 IR 表征**：  
   * C++11 / OpenCL 内存模型被扩展以支持 `SyncScope::Cluster`。  
@@ -204,39 +189,27 @@ fence.sc.cluster ──(NoC Signal)──► cluster.barrier.wait
 
 #### 1. Auto-Tuning 搜索空间与搜索策略
 
-Tile Size 选择本质上是一个受硬件资源约束的非线性组合优化问题。搜索空间通常涵盖：`Tile_M, Tile_N, Tile_K`、`Thread_Block_Size`、`Vectorize_Factor` 以及 `Pipeline_Stages`（如 Async Copy Stage 数）。  [ Search Space Design ] ──► (Tile_M, Tile_N, Tile_K, Block_Size, Stages)
+Tile Size 选择本质上是一个受硬件资源约束的非线性组合优化问题。搜索空间通常涵盖：`Tile_M, Tile_N, Tile_K`、`Thread_Block_Size`、`Vectorize_Factor` 以及 `Pipeline_Stages`（如 Async Copy Stage 数）。  
 
+```text
+  [ Search Space Design ] ──► (Tile_M, Tile_N, Tile_K, Block_Size, Stages)
              │
-
              ▼
-
   [ Pruning Rules (静态硬约束过滤) ]
-
              │
-
              ├── Shared Memory Size Limit Exceeded?
-
              ├── Register Count Per Thread Exceeded?
-
              └── Unaligned Tile Boundaries?
-
              │
-
              ▼
-
   [ Cost Model Evaluation / Active Profiling ]
-
              │
-
              ├── Static/ML Model 筛选 Top-K 候选
-
              └── 硬件 Profiler 部署测试 (Micro-benchmarking)
-
              │
-
              ▼
-
   [ Feedback Loop Optimization (Genetic / Evolutionary / XGBoost) ]
+```
 
 * **空间剪枝（Pruning Rules）**：利用硬件硬性指标预先剪掉非法配置：  
   * Shared Memory 总需求量 $> SM_{max_shared_mem}$。  
@@ -286,31 +259,23 @@ Tile Size 选择本质上是一个受硬件资源约束的非线性组合优化�
 
 #### 2. Synchronous Region Consolidation（同步点合并与消除）
 
-跨多个 Warp 原语时，反复插入同步代码会严重阻碍流水线发射。编译器在后端执行 Mask 传播优化与屏障合并：[原始 IR 序列]
+跨多个 Warp 原语时，反复插入同步代码会严重阻碍流水线发射。编译器在后端执行 Mask 传播优化与屏障合并：
 
+```text
+[原始 IR 序列]
   %mask1 = call @llvm.nvvm.activemask()
-
   %res1  = call @llvm.nvvm.shfl.sync(%mask1, %val1, ...)
-
   ; (没有发生 Divergent Branch 的中间计算)
-
   %mask2 = call @llvm.nvvm.activemask()
-
   %res2  = call @llvm.nvvm.shfl.sync(%mask2, %val2, ...)
-
             │
-
             ▼ [Mask Propagation & Divergence Analysis Optimization]
-
             │
-
 [优化后 IR 序列]
-
   %mask_shared = call @llvm.nvvm.activemask()  <-- 复用掩码
-
   %res1        = call @llvm.nvvm.shfl.sync(%mask_shared, %val1, ...)
-
   %res2        = call @llvm.nvvm.shfl.sync(%mask_shared, %val2, ...)
+```
 
 #### 3. Divergence/Convergence Safety（汇聚安全边界约束）
 
