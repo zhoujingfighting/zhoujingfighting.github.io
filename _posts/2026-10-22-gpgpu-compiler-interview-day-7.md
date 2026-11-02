@@ -95,6 +95,41 @@ Host 端在调用 CUDA/HIP Driver API（如 `cuLaunchKernel`）时，会将所�
 * **大型结构体（Structs / Aggregates）**：按值传递结构体时，前端（Clang）通常将其转换为 `byval` 属性的指针。后端在 `LowerFormalArguments` 中会将整个结构体展开为在 Parameter Space 内的一组连续偏移。后端根据结构体内成员的标量类型生成矢量加载（如 `ld.param.v4.s32`）或多条标量加载，以最大化指令吞吐。  
 * **对齐约束（Alignment）**： Parameter Space 中的布局严格遵循宿主与设备一致的数据对齐标准（通常为 1/2/4/8/16 字节）。若结构体对齐要求为 16 字节，后端会强制在该参数起始地址插入 Padding，并尝试使用 128-bit 的向量加载指令（如 `ld.param.v4.b32`）直接读入寄存器组。若对齐不足，则回退为多条低位宽读取并执行位拼装（Shift-Or）。
 
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：Host 端发起 Kernel 调用时，参数是如何物理传递至 GPU 硬件端的？在 LLVM 后端 lowering 阶段，TargetLowering 接口与 Calling Convention（如 NVPTX 的 PTX\_Kernel）如何将抽象的函数参数映射到具体的 Parameter Address Space（`addrspace(4)` 或 Constant/Param 寄存器）？大型结构体与对齐约束如何降级？
+
+* **源码文件直达**：  
+  * `llvm/lib/Target/NVPTX/NVPTXISelLowering.cpp`  
+  * `llvm/lib/CodeGen/SelectionDAG/SelectionDAGBuilder.cpp`  
+* **核心类与核心代码块逻辑**：  
+* 
+
+```cpp
+// llvm/lib/Target/NVPTX/NVPTXISelLowering.cpp
+SDValue NVPTXTargetLowering::LowerFormalArguments(
+    SDValue Chain, CallingConv::ID CallConv, bool isVarArg,
+    const SmallVectorImpl<ISD::InputArg> &Ins, const SDLoc &dl,
+    SelectionDAG &DAG, SmallVectorImpl<SDValue> &InVals) const {
+  // 遍历所有 Kernel 参数
+  for (unsigned i = 0, e = Ins.size(); i != e; ++i) {
+    Type *ArgTy = Ins[i].ArgVT.getTypeForEVT(*DAG.getContext());
+    // 强制转换为 Parameter 专用地址空间 (NVPTX::PTX_PARAM_SPACE)
+    SDValue ParamVal = DAG.getLoad(
+        Ins[i].ArgVT, dl, Chain,
+        DAG.getTargetConstant(Ins[i].PartOffset, dl, MVT::i32),
+        MachinePointerInfo(AddressSpace::Param));
+    InVals.push_back(ParamVal);
+  }
+  return Chain;
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **参数空间抽象**：在 `LowerFormalArguments` 中，所有入口参数被截获并映射到 `AddressSpace::Param`（PTX `.param`）。  
+  * **复合结构体降级**：结构体被展开为偏移序列，若满足 16 字节对齐，生成向量加载指令（如 `ld.param.v4.b32`）一次性读取。
+
+---
+
 ---
 
 ### 题 2 深度解析：Issue Port Starvation 与异构管线调度
@@ -126,6 +161,35 @@ LLVM 的 `MachineScheduler` (MISched) 在 RA（Register Allocation）前或后�
 * **指令交织（Interleaving）**：编译器主动在密集 Memory/SFU 指令流中打入 independent 的 ALU/FMA 计算指令。例如将 `Address Calc -> Load -> SFU` 展开并交织为：  
   $$\\text{AddrCalc}_0 \\longrightarrow \\text{Load}_0 \\longrightarrow \\text{ALUOp}_0 \\longrightarrow \\text{SFU}_0 \\longrightarrow \\text{AddrCalc}_1 \\longrightarrow \\text{Load}_1 \\dots$$  
 * **Hazard Recognizer 约束**：由于 GPU 存在 Read-After-Write (RAW) 结构性 Hazard，调度器需利用 `Scoreboard` 机制模型计算指令间的 Distance（周期数）。若发现指令 A 与 B 存在 Hardware Pipeline Dependency，调度器将强制插入无冲突指令或利用 GPU 特殊的 SASS 控制码（如 Yield/No-Bar/Dependency Barriers）显式标记，从而在不依赖高 TLP 的前提下隐藏单个 Warp 内的管线延迟。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：在现代 GPGPU 架构中，SM 内部包含多种异构计算管线。当某一类指令过载导致 Issue Port Starvation 时，编译器如何借助 TargetScheduleModel 与 Hazards Recognition 实现异构管线交织调度？
+
+* **源码文件直达**：  
+  * `llvm/lib/CodeGen/MachineScheduler.cpp`  
+  * `llvm/include/llvm/CodeGen/TargetSchedule.h`  
+* **核心类与核心代码块逻辑**：  
+* 
+
+```cpp
+// llvm/lib/CodeGen/MachineScheduler.cpp
+void ScheduleDAGMILive::initQueues(ArrayRef<SUnit *> TopRoots,
+                                   ArrayRef<SUnit *> BotRoots) {
+  // 追踪 ProcResource 压力
+  for (unsigned i = 0; i < SchedModel.getNumProcResourceKinds(); ++i) {
+    if (CurrentPressure[i] > CriticalResourceThreshold[i]) {
+      // 当前端口（如 SFU 端口）发生饥饿/过载，提升其他异构管线指令优先级
+      SchedBoundary::bumpNodeTop(SUnit *SU);
+    }
+  }
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **端口压力追踪**：`SchedBoundary` 追踪每条发射指令对 `ProcResource` 的消耗百分比。  
+  * **指令交织优化**：在密集 Memory 或 SFU 指令中穿插独立的 ALU/FMA 计算指令，打散同质指令丛，避免发射端口阻塞。
+
+---
 
 ---
 
@@ -166,6 +230,35 @@ else if (fp == FuncB)
   CUDA Runtime 为每个 Thread 分配独立的 Stack Space。若编译期无法计算上限（如存在间接调用），编译器在二进制 Header 标记 `MAX_STACK_SIZE` 需求。Runtime 在 Kernel Launch 前配置 `cudaDeviceSetLimit(cudaLimitStackSize, ...)`，动态扩展 Thread Private Memory 区域。  
 * **CDP (CUDA Dynamic Parallelism) 编译处理**：  
   当在 GPU Kernel 内部再次启动 Kernel 时，编译器不将其视为普通函数调用，而是插入对 Runtime Driver API（GPU-side Entry Point）的封装指令。编译器将 Launch 参数序列化到 Parent Kernel 的 Dynamic Shared Memory 或 Local Memory 中，通过硬件 Control Block 触发 Grid 调度器生成子网格。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：* 在 GPU 上支持虚函数、函数指针及动态并行（CDP）面临严重的硬件与编译器挑战。编译器如何通过去虚拟化（Devirtualization）、跳转表及动态栈分配予以解决？
+
+* **源码文件直达**：  
+  * `llvm/lib/Transforms/IPO/Devirt.cpp`  
+  * `llvm/lib/Target/NVPTX/NVPTXISelLowering.cpp`  
+* **核心类与核心代码块逻辑**：  
+* 
+
+```cpp
+// llvm/lib/Transforms/IPO/Devirt.cpp
+bool Devirtualization::tryDevirtualize(CallBase &CB) {
+  // 查找可能的 Callee 闭包候选集
+  SmallVector<Function *, 4> Targets;
+  if (findTargets(CB, Targets) && Targets.size() == 1) {
+    // 替换间接调用为直接调用，消除 GPU 栈溢出与 Warp 分歧
+    CB.setCalledFunction(Targets[0]);
+    return true;
+  }
+  return false;
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **消除分支发散**：间接调用可能导致同 Warp 线程跳转到不同代码段。通过 LTO 去虚拟化，将无法推导的函数指针重构为条件分支并在全 Warp 层面聚拢。  
+  * **栈空间预分配**：CUDA Runtime 在编译期估算 `MAX_STACK_SIZE` 并注入 Kernel 元数据，驱动层提前为每个线程配置独立的 Local Memory 栈帧。
+
+---
 
 ---
 
@@ -213,6 +306,40 @@ LLVM IR atomicrmw -> SelectionDAG (ATOMIC_RMW) -> Target-specific ISA Node -> SA
 
 1. **静默数据竞争（Silent Data Corruption）**：Thread A 在 SM 0 执行原子写，由于降级为 `.cta`，硬件仅保证 SM 0 的 L1 Cache 或 Register/Shared 空间更新。Thread B 在 SM 1 读取同一 Global Address 时，SM 1 的 L1 Cache 依然命中了本地的旧缓存行（Stale Cache Line），造成数据一致性破坏。  
 2. **内存重排序越界（Out-of-Order Memory Access Violation）**：若 `Release` 降级丢失，编译器可能将 `atomicrmw` 之后的普通 Load/Store 重排序到原子写之前，导致其他 Thread 在观察到 Flag 置位时，关联的 Payload 数据尚未真正写入 Main Memory。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：GPU 架构采用弱内存模型。编译器如何根据 SyncScope 映射硬件原子指令修饰符？若漏配 Scope 或 Fence 会导致什么严重后果？
+
+1. **源码文件直达**：  
+   1. `llvm/lib/Target/NVPTX/NVPTXISelLowering.cpp`
+
+   2. `llvm/lib/Target/AMDGPU/SIISelLowering.cpp`  
+2. **核心类与核心代码块逻辑**：
+
+```cpp
+// llvm/lib/Target/NVPTX/NVPTXISelLowering.cpp
+SDValue NVPTXTargetLowering::LowerATOMIC_RMW(SDValue Op, SelectionDAG &DAG) const {
+  auto *AtomicNode = cast<AtomicSDNode>(Op);
+  SyncScope::ID SSID = AtomicNode->getSyncScopeID();
+  
+  // 映射作用域修饰符 (.cta / .gpu / .sys)
+  NVPTX::Scope ScopeQualifier = NVPTX::Scope::CTA;
+  if (SSID == DAG.getContext()->getOrInsertSyncScopeID("agent"))
+    ScopeQualifier = NVPTX::Scope::GPU;
+  else if (SSID == DAG.getContext()->getOrInsertSyncScopeID("cross-system"))
+    ScopeQualifier = NVPTX::Scope::SYS;
+
+  return DAG.getNode(NVPTXISD::ATOM_ADD, SDLoc(Op), AtomicNode->getVTList(),
+                     AtomicNode->getChain(), AtomicNode->getBasePtr(),
+                     AtomicNode->getVal(), DAG.getTargetConstant(ScopeQualifier, SDLoc(Op), MVT::i32));
+}
+```
+
+3. **逐行逻辑深度拆解**：  
+   1. **硬件修饰符绑定**：`agent` 映射为 `.gpu`，指示 LSU 绕过本地 SM 的 L1 脏写，下发至全局 L2 协调点。  
+   2. **防范数据损坏**：若误降级为 `.cta`，其他 SM 将持续读取过期的本地缓存行，引发静默数据竞争。
+
+---
 
 ---
 
@@ -276,6 +403,36 @@ Register File  (提供给 Tensor Core / Vector ALU 进行 Compute)
 | **间接函数调用优化** | Local Memory / Thread Private Stack | Class Hierarchy Analysis (CHA), Devirtualization | Dynamic Stack 暴涨与 Divergence | 减少 Stack Spill，消除 Branch Divergence |
 | **Atomic SyncScope 降级** | L1/L2 Cache, Coherency Point | `atomicrmw`, `SelectionDAG::getAtomic` | 弱内存模型下的数据竞争与脏读 | 生成正确的 `.gpu`/`.sys` PTX 修饰符与 Fence |
 | **Layout Propagation** | Global Memory Bus / Shared Memory Banks | MLIR Layout Propagation, `memref.transpose` | Strided Memory Access & Bank Conflict | 100% Coalesced Global Read, 0 Bank Conflict |
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：非连续步长访存如何破坏合并访存（Coalesced Memory Access）？MLIR 中的 Layout Propagation 如何消除转置？遇到无法消除的步长访存时如何通过 Shared Memory 暂存转置恢复满带宽？
+
+* **源码文件直达**：  
+  * `mlir/lib/Dialect/MemRef/Transforms/ComposeSubView.cpp`
+
+  * `mlir/lib/Dialect/Affine/Transforms/LoopFusion.cpp`  
+* **核心类与核心代码块逻辑**：
+
+```cpp
+// MLIR Shared Memory Staging Transpose 伪代码结构
+void emitSmemStagedTranspose(OpBuilder &b, Location loc, Value gmemInput) {
+  // 1. 分配带 Padding 的片上二维 Tile: [32][33]
+  auto smemType = MemRefType::get({32, 33}, b.getF32Type(), {}, 3);
+  Value smemTile = b.create<memref::AllocOp>(loc, smemType);
+
+  // 2. Warp 协同沿行连续读取 (100% Coalesced Global Read)
+  b.create<gpu::SubgroupMmaLoadMatrixOp>(loc, smemTile, gmemInput);
+
+  // 3. 按列读取转换为计算所需布局 (无 Bank 冲突)
+  b.create<gpu::BarrierOp>(loc);
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **带宽放大抑制**：步长为 \$N\$ 的访问导致 32 线程分散在 32 个 Cache Line，总线利用率骤跌至 3.125%。  
+  * **Shared Memory 暂存中转**：Warp 沿全局内存物理连续方向做合并读取写入 SRAM，利用二维数组行填充消除列向读取时的 Bank 冲突，恢复 100% 满带宽。
+
+---
 
 ---
 

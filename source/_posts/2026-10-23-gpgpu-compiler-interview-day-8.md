@@ -126,6 +126,44 @@ mindmap
 * **阶段一（Dialect 到 Hardware Dialect）**：`gpu.thread_id {x}` 被 Pattern Matching 重写为 `nvvm.read.ptx.sreg.tid.x`（NVPTX）或 `rocdl.workitem.id.x`（ROCm）。  
 * **阶段二（Hardware Dialect 到 LLVM IR Dialect）**：这些 Dialect 中的 Op 实现了 `LLVM::PointerBitcastOp` 或 Intrinsics 接口，被翻译为 `llvm.call @llvm.nvvm.read.ptx.sreg.tid.x()` 或 `llvm.call @llvm.amdgcn.workitem.id.x()`。这些是 LLVM 内置的 Intrinsic，能够在后端寄存器分配阶段直接映射到硬件物理寄存器（如 PTX 的 `%tid.x` 或 AMDGCN 的 `v0` 寄存器）。
 
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：在降级到 `llvm` Dialect 时，MLIR 如何保留地址空间、Kernel 调用约定及线程内置函数？
+
+* **源码文件直达**：  
+  * `mlir/lib/Conversion/GPUToLLVM/GPUToLLVMPass.cpp`  
+  * `mlir/lib/Conversion/GPUCommon/GPUOpsLowering.cpp`  
+* **核心类与核心代码块逻辑**：
+
+```cpp
+// mlir/lib/Conversion/GPUCommon/GPUOpsLowering.cpp
+LogicalResult GPUFuncOpLowering::matchAndRewrite(
+    gpu::GPUFuncOp gpuFuncOp, OpAdaptor adaptor,
+    ConversionPatternRewriter &rewriter) const {
+  // 1. 检查是否带有 gpu.kernel 属性
+  if (!gpuFuncOp.isKernel())
+    return failure();
+
+  // 2. 映射为对应 Target 的调用约定与属性
+  auto llvmFuncType = typeConverter->convertType(gpuFuncOp.getFunctionType());
+  auto llvmFuncOp = rewriter.create<LLVM::LLVMFuncOp>(
+      gpuFuncOp.getLoc(), gpuFuncOp.getName(), llvmFuncType);
+
+  // 3. 设置 NVVM / ROCDL 特化属性
+  if (isNVVM) {
+    llvmFuncOp->setAttr("nvvm.kernel", rewriter.getUnitAttr());
+    llvmFuncOp->setAttr("nvvm.maxntid", gpuFuncOp->getAttr("known_block_size"));
+  }
+  rewriter.replaceOp(gpuFuncOp, llvmFuncOp);
+  return success();
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **调用约定绑定**：将 `gpu.kernel` 单元属性直接翻译为 `nvvm.kernel` 或 AMD 的 `amdgpu_kernel` (CallingConv 85)。  
+  * **微架构硬件限制透传**：将 Block 尺寸映射为目标后端元数据，防止机器指令生成时误设过高寄存器限制。
+
+---
+
 ---
 
 ### 题 2 深度解析：Tensor 到 Memref 的 Bufferization 与 GPU 共享内存映射
@@ -168,6 +206,31 @@ mindmap
   3. 通过 `llvm.getelementptr` 获取该全局变量的起始地址，并将其 `bitcast` 转换为实际所需的数据类型指针（如 `float*`）。  
   4. 最终在 PTX 中输出为 `extern .shared .align 16 .b8 dynamic_shmem[];`，其真实物理大小在 Kernel 发射（`cudaLaunchKernel` 的第 4 个参数 `dynamicSharedMemSize`）时由 Runtime 动态传入。
 
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：In-place Bufferization 如何复用内存？Shared Memory 是如何分配并转换为底层 LLVM IR 的？
+
+* **源码文件直达**：  
+  1. `mlir/lib/Dialect/Bufferization/Transforms/OneShotAnalysis.cpp`  
+  2. `mlir/lib/Conversion/GPUCommon/GPUOpsLowering.cpp`  
+* **核心类与核心代码块逻辑**：
+
+```cpp
+// MLIR Shared Memory Buffer Allocation 核心映射逻辑
+Value allocateSharedMemory(OpBuilder &builder, Location loc, MemRefType type) {
+  // 静态 Shared Memory 映射为 AddressSpace 3 的内部全局变量
+  auto globalOp = builder.create<LLVM::GlobalOp>(
+      loc, type, /*isConstant=*/false, LLVM::Linkage::Internal,
+      "smem_alloc", Attribute(), /*alignment=*/16, /*addrSpace=*/3);
+  return builder.create<LLVM::AddressOfOp>(loc, globalOp);
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  1. **就地复用**：生命周期分析确定无冲突后就地覆盖，消除显存分配。  
+  2. **LDS 映射**：`gpu.dynamic_shared_memory` 映射为外部动态共享内存声明指针。
+
+---
+
 ---
 
 ### 题 3 深度解析：SCF / Affine 循环到 GPU Grid/Block 的映射
@@ -207,6 +270,31 @@ mindmap
 2. **构建向量化与 Tensor Core 化的基础**：  
    * 映射消除了高层的大循环后，留存在 Thread 内部的微小循环（如 $4 \\times 4$ 的寄存器 Tile 循环）变得极易被完全展开（Unroll All）。  
    * 展开后的连续 `memref.load` 操作可以被匹配为向量加载（`vector.load` $\\rightarrow$ PTX `ld.global.v4`），为后端的 Register Allocation 和 Instruction Scheduling 创造了高度定量的指令序列。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：嵌套循环如何映射到 GPU 的二维/三维线程拓扑？对下游循环展开有何影响？
+
+* **源码文件直达**：  
+  1. `mlir/lib/Conversion/AffineToGPU/AffineToGPU.cpp`  
+  2. `mlir/lib/Dialect/GPU/Transforms/ParallelLoopToGpu.cpp`  
+* **核心类与核心代码块逻辑**：
+
+```cpp
+// 循环归纳变量重写为 GPU 线程索引逻辑
+Value rewriteInductionVariable(OpBuilder &b, Location loc, Value lowerBound, 
+                               Value step, Value blockId, Value threadId, Value blockDim) {
+  Value threadOffset = b.create<arith::AddIOp>(
+      loc, b.create<arith::MulIOp>(loc, blockId, blockDim), threadId);
+  return b.create<arith::AddIOp>(
+      loc, lowerBound, b.create<arith::MulIOp>(loc, threadOffset, step));
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  1. **映射机制**：通过 Pass 将循环归纳变量重写为全局线程索引计算公式并嵌入 `gpu.launch`。  
+  2. **影响**：破坏原本连续循环边界，但为后端向量化和 SIMT 谓词化建立硬件基础。
+
+---
 
 ---
 
@@ -263,6 +351,36 @@ mindmap
 * **Step B (Vector 到 Loop 降级)**：`vector.outerproduct` 被进一步 Lower 到 `scf.for` 循环，并在最内层包含向量化/标量的 `math.fma` 或 `arith.mulf` + `arith.addf`。  
 * **Step C (LLVM Target 展开)**：`scf.for` 生成标准的控制流，`fma` 被 Lower 为 `llvm.fmuladd` 或标量 IR 指令。  
 * **后端结果**：最终在 NVPTX 后端输出标准的 CUDA Core 标量/向量 FMA 指令（如 `fma.rn.f32 %f3, %f1, %f2, %f4;`），保证了即使缺少硬件 Accelerator 原语支持，程序依然具备**语义正确性**的底层兜底实现。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：解释 Pattern Rewriting 的匹配收敛机制。当矩阵 Shape 不支持时如何 Fallback？
+
+* **源码文件直达**：  
+  * `mlir/lib/Transforms/Utils/GreedyPatternRewriteDriver.cpp`  
+* **核心类与核心代码块逻辑**：
+
+```cpp
+// mlir/lib/Transforms/Utils/GreedyPatternRewriteDriver.cpp
+LogicalResult GreedyPatternRewriteDriver::processWorklist() {
+  while (!worklist.empty()) {
+    Operation *op = worklist.pop_back_val();
+    for (const auto &pattern : patterns) {
+      if (pattern->matchAndRewrite(op, rewriter).succeeded()) {
+        // 重写成功，重新将关联节点入队以驱动收敛
+        addToWorklist(op->getUsers());
+        break;
+      }
+    }
+  }
+  return success();
+}
+```
+
+* **逐行逻辑深度拆解**：  
+  * **匹配驱动**：`GreedyPatternRewriteDriver` 维护 Worklist 反复应用规则直到达到固定点。  
+  * **Fallback**：无法匹配专有硬件指令（如 wmma）时，回退生成标量/向量循环和 FMA 累加。
+
+---
 
 ---
 
@@ -321,6 +439,22 @@ mindmap
 4. **机器指令调度与汇编发射（Machine Scheduling & Emission）**：  
    * 针对特定 GPU 架构进行 Pipeline 填塞（如 PTX 级别或 SASS 级别的指令重排，隐藏访存延迟）。  
    * 最终输出目标平台专有代码（NVIDIA PTX/SASS 或 AMDGPU HSACO 镜像）。
+
+#### 源码级深度剖析与核心实现
+> 📌 **源码剖析提问**：为什么底层优化不适合在 MLIR 高层完成？两者的理想交接点在哪里？
+
+1. **核心分工逻辑图解**：
+
+```
+[ MLIR: 高层几何变换 (Tile/Fuse/Bufferize) ] 
+       │ 
+       ▼ (转换为纯净 llvm Dialect)
+[ LLVM Backend: 物理寄存器分配 / SchedDAG / Hazard 防范 / 汇编发射 ]
+```
+
+2. **逐行逻辑深度拆解**：  
+   * **底层不可替代**：寄存器分配和指令调度高度依赖微架构物理细节，高层无法精确评估压力。  
+   * **交接点**：当高层结构化循环与内存分配完全降级为纯净的 llvm Dialect 时，交由 LLVM 后端做机器码生成。
 
 ---
 
