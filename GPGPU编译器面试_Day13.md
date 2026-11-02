@@ -104,45 +104,44 @@ GPU 后端对操作数的对齐和排布有硬性微架构约束（如 AMDGPU �
 
 ### **核心类与核心代码块逻辑**
 
-p  
-// llvm/lib/Target/AMDGPU/SIRegisterInfo.cpp  
-bool SIRegisterInfo::getRegAllocationHints(  
-Register VirtReg, ArrayRef Order,  
-SmallVectorImpl \&Hints, const MachineFunction \&MF,  
-const VirtRegMap \*VRM, const LiveRegMatrix \*Matrix) const {
+```cpp
+// llvm/lib/Target/AMDGPU/SIRegisterInfo.cpp
+bool SIRegisterInfo::getRegAllocationHints(
+    Register VirtReg, ArrayRef<MCPhysReg> Order,
+    SmallVectorImpl<MCPhysReg> &Hints, const MachineFunction &MF,
+    const VirtRegMap *VRM, const LiveRegMatrix *Matrix) const {
 
-const MachineRegisterInfo \&MRI \= MF.getRegInfo();  
-const TargetRegisterClass \*RC \= MRI.getRegClass(VirtReg);
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+  const TargetRegisterClass *RC = MRI.getRegClass(VirtReg);
 
-// 1\. 检查当前虚拟寄存器是否属于需要特殊对齐的 64 位向量类 (VReg\_64)  
-if (RC-\>hasSuperClassEq(\&AMDGPU::VReg\_64RegClass)) {  
-for (MCPhysReg PhysReg : Order) {  
-// 提取物理寄存器基号，施加 HW 要求的 2 对齐 (偶数号检查)  
-unsigned RegNo \= PhysReg \- AMDGPU::VGPR0;  
-if (RegNo % 2 \== 0\) {  
-Hints.push\_back(PhysReg);  
-}  
-}  
-// 返回 true 表示 Hints 列表拥有最高优先搜索权  
-return true;  
+  // 1. 检查当前虚拟寄存器是否属于需要特殊对齐的 64 位向量类 (VReg_64)
+  if (RC->hasSuperClassEq(&AMDGPU::VReg_64RegClass)) {
+    for (MCPhysReg PhysReg : Order) {
+      // 提取物理寄存器基号，施加 HW 要求的 2 对齐 (偶数号检查)
+      unsigned RegNo = PhysReg - AMDGPU::VGPR0;
+      if (RegNo % 2 == 0) {
+        Hints.push_back(PhysReg);
+      }
+    }
+    // 返回 true 表示 Hints 列表拥有最高优先搜索权
+    return true;
+  }
+
+  // 2. 对于 128 位向量 (VReg_128)，施加 4-Alignment 约束
+  if (RC->hasSuperClassEq(&AMDGPU::VReg_128RegClass)) {
+    for (MCPhysReg PhysReg : Order) {
+      unsigned RegNo = PhysReg - AMDGPU::VGPR0;
+      if (RegNo % 4 == 0) {
+        Hints.push_back(PhysReg);
+      }
+    }
+    return true;
+  }
+
+  // 回退到 LLVM 标准的 Copy-Hint 逻辑
+  return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM, Matrix);
 }
-
-// 2\. 对于 128 位向量 (VReg\_128)，施加 4-Alignment 约束  
-if (RC-\>hasSuperClassEq(\&AMDGPU::VReg\_128RegClass)) {  
-for (MCPhysReg PhysReg : Order) {  
-unsigned RegNo \= PhysReg \- AMDGPU::VGPR0;  
-if (RegNo % 4 \== 0\) {  
-Hints.push\_back(PhysReg);  
-}  
-}  
-return true;  
-}
-
-// 回退到 LLVM 标准的 Copy-Hint 逻辑  
-return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM, Matrix);  
-}
-
-````
+```
 
 #### 逐行逻辑深度拆解与着色器干预机制
 
@@ -157,12 +156,12 @@ return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM,
 
 ---
 
-## 3. AMDGPUHazardRecognizer.cpp 中的 SMRD 与 VALU 读后写冲突仲裁
+# **3\. AMDGPUHazardRecognizer.cpp 中的 SMRD 与 VALU 读后写冲突仲裁**
 
-### 题目描述
+## **题目描述**
 在 AMD GCN/CDNA 架构中，标量内存读取（SMRD/SMEM）与向量 ALU（VALU）指令在写入标量寄存器（SGPR）时存在固定硬件流水线线隙与读后写（RAW）/写后写（WAW） Hazard。请结合 `AMDGPUHazardRecognizer.cpp` 源码，剖析其状态机实现：识别器如何利用 History 滑动窗口检测 RAW 并在无可用独立指令时插入 `S_NOP`？
 
-### 源码级深度剖析
+## **源码级深度剖析**
 
 #### 源码文件直达
 * `llvm/lib/Target/AMDGPU/AMDGPUHazardRecognizer.cpp`
@@ -219,7 +218,7 @@ void AMDGPUHazardRecognizer::EmitInstruction(SUnit *SU) {
   if (History.size() > MaxHistoryDepth)
     History.pop_back();
 }
-````
+```
 
 ### **逐行逻辑深度拆解与硬件 Hazard 仲裁**
 
@@ -421,7 +420,7 @@ void emitHopperMainLoop(int num_iterations, DynamicSharedMemory smem) {
 
 ---
 
-# **5 深度技术对比**
+## 5 深度技术对比
 
 | 优化阶段 / 机制 | 解决的核心硬件/软件瓶颈 | LLVM/MLIR 关键 IR 操作符与 IR 节点 | 错误处理不当的后果 |
 | :---- | :---- | :---- | :---- |

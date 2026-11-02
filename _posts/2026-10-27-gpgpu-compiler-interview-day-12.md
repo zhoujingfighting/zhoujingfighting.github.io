@@ -179,8 +179,6 @@ bool MachineLICMImpl::isProfitableToHoist(MachineInstr &MI, bool &IsExceeding) {
 
 ---
 
----
-
 ### 题 2 深度解析：OneShotBufferize.cpp 中的 RaW 冲突与内存复用决策
 
 #### 源码级深度剖析与核心实现
@@ -193,25 +191,24 @@ bool MachineLICMImpl::isProfitableToHoist(MachineInstr &MI, bool &IsExceeding) {
 
 ##### 核心类与结构定义
 
-p  
-namespace mlir {  
+```cpp
+namespace mlir {
 namespace bufferization {
 
-class OneShotAnalysisState {  
-public:  
-// 判断 OpOperand 是否可以原地 (In-place) 复用其对应的 Tensor 内存  
-bool isInPlace(OpOperand \&opOperand) const;
+class OneShotAnalysisState {
+public:
+  // 判断 OpOperand 是否可以原地 (In-place) 复用其对应的 Tensor 内存
+  bool isInPlace(OpOperand &opOperand) const;
 
-// 核心检测算法：判断是否存在 Read-after-Write (RaW) 冲突  
-bool hasReadBeforeWriteConflict(OpOperand \&opOperand, const AnalysisState \&state) const;
+  // 核心检测算法：判断是否存在 Read-after-Write (RaW) 冲突
+  bool hasReadBeforeWriteConflict(OpOperand &opOperand, const AnalysisState &state) const;
 
-// 查找与当前 Tensor 存在潜在别名关系 (Alias) 的所有 Read Uses  
-SetVector\<OpOperand \*\> findConflictingReads(OpOperand \&opOperand) const;  
+  // 查找与当前 Tensor 存在潜在别名关系 (Alias) 的所有 Read Uses
+  SetVector<OpOperand *> findConflictingReads(OpOperand &opOperand) const;
 };
 
-} // namespace bufferization  
+} // namespace bufferization
 } // namespace mlir
-
 ```
 
 ###### 核心 C++ 源码实现解析
@@ -287,8 +284,6 @@ void mlir::bufferization::analyzeOp(Operation *op, OneShotAnalysisState &state) 
 
 ---
 
----
-
 ### 题 3 深度解析：RAGreedy.cpp 中的 Live Range Splitting 与 Spill Cost 评估
 
 #### 源码级深度剖析与核心实现
@@ -302,56 +297,52 @@ void mlir::bufferization::analyzeOp(Operation *op, OneShotAnalysisState &state) 
 
 ##### 核心公式与计算逻辑
 
-\$\$\\text{SpillWeight}(v) \= \\frac{\\sum\_{m \\in \\text{Uses/Defs}(v)} \\text{UseWeight}(m) \\times 10^{\\text{LoopDepth}(m)}}{\\text{Size}(\\text{LiveInterval}(v))}\$\$
+\$\$\\text{SpillWeight}(v) = \\frac{\\sum_{m \\in \\text{Uses/Defs}(v)} \\text{UseWeight}(m) \\times 10^{\\text{LoopDepth}(m)}}{\\text{Size}(\\text{LiveInterval}(v))}\$\$
 
 ##### 核心 C++ 源码实现解析
 
-p  
+```cpp
 // llvm/lib/CodeGen/CalcSpillWeights.cpp
 
-float VirtRegAuxInfo::weightCalcHelper(LiveInterval \&LI, SlotIndex \*Start,  
-SlotIndex \*End) {  
-MachineRegisterInfo \&MRI \= MF.getRegInfo();  
-float Weight \= 0.0f;  
-const MachineLoopInfo \*Loops \= VirtRegAuxInfo::Loops;
+float VirtRegAuxInfo::weightCalcHelper(LiveInterval &LI, SlotIndex *Start,
+                                       SlotIndex *End) {
+  MachineRegisterInfo &MRI = MF.getRegInfo();
+  float Weight = 0.0f;
+  const MachineLoopInfo *Loops = VirtRegAuxInfo::Loops;
 
-// 1. 特殊情况判断：若虚拟寄存器被标记为不可溢出（如 InlineAsm 约束或 Top-Level PhysReg 复制）  
-if (LI.isSpillable() \== false)  
-return VirtRegAuxInfo::getSpillWeightInfinite();
+  // 1. 特殊情况判断：若虚拟寄存器被标记为不可溢出（如 InlineAsm 约束或 Top-Level PhysReg 复制）
+  if (LI.isSpillable() == false)
+    return VirtRegAuxInfo::getSpillWeightInfinite();
 
-// 2. 遍历该 LiveInterval 在程序中所有的使用（Use）与定义（Def）点  
-for (MachineOperand \&MO : MRI.reg\_nodbg\_operands(LI.reg())) {  
-MachineInstr \*MI \= MO.getParent();  
-if (MI-\>isDebugInstr())  
-continue; // 忽略调试指令，保证 CodeGen 确定性
+  // 2. 遍历该 LiveInterval 在程序中所有的使用（Use）与定义（Def）点
+  for (MachineOperand &MO : MRI.reg_nodbg_operands(LI.reg())) {
+    MachineInstr *MI = MO.getParent();
+    if (MI->isDebugInstr())
+      continue; // 忽略调试指令，保证 CodeGen 确定性
 
-```
-MachineBasicBlock *MBB = MI->getParent();
+    MachineBasicBlock *MBB = MI->getParent();
 
-// 3. 计算当前 BasicBlock 的 Loop 嵌套深度权重
-// 基础 Loop 权重乘数：每加深一层循环，权重按指数级（默认为 10.0f）飙升
-unsigned Depth = Loops ? Loops->getLoopDepth(MBB) : 0;
-float LoopWeight = ShortLanePenalty ? 
-                   std::pow(8.0f, Depth) : std::pow(10.0f, Depth);
+    // 3. 计算当前 BasicBlock 的 Loop 嵌套深度权重
+    // 基础 Loop 权重乘数：每加深一层循环，权重按指数级（默认为 10.0f）飙升
+    unsigned Depth = Loops ? Loops->getLoopDepth(MBB) : 0;
+    float LoopWeight = ShortLanePenalty ? 
+                       std::pow(8.0f, Depth) : std::pow(10.0f, Depth);
 
-// 4. 区分 Write (Def) 与 Read (Use) 的内存访问开销
-// Def 通常需要额外的 Store 指令，内存开销高于 Read (Load)
-float OpWeight = MO.isDef() ? 2.0f : 1.0f;
+    // 4. 区分 Write (Def) 与 Read (Use) 的内存访问开销
+    // Def 通常需要额外的 Store 指令，内存开销高于 Read (Load)
+    float OpWeight = MO.isDef() ? 2.0f : 1.0f;
 
-// 累加当前指令粒度的溢出代价
-Weight += OpWeight * LoopWeight;
-```
+    // 累加当前指令粒度的溢出代价
+    Weight += OpWeight * LoopWeight;
+  }
 
+  // 5. 归一化处理：将总代价除以 LiveInterval 的实际空间/时间跨度 (Size)
+  // 目的：避免长生命周期的变量因 Use 节点多而产生虚高的 Weight，优先 Split/Spill 跨度大的变量
+  float Size = LI.getSize();
+  if (Size == 0) return 0.0f;
+
+  return Weight / Size;
 }
-
-// 5. 归一化处理：将总代价除以 LiveInterval 的实际空间/时间跨度 (Size)  
-// 目的：避免长生命周期的变量因 Use 节点多而产生虚高的 Weight，优先 Split/Spill 跨度大的变量  
-float Size \= LI.getSize();  
-if (Size \== 0\) return 0.0f;
-
-return Weight / Size;  
-}
-
 ```
 
 ###### GPU 专属的溢出策略扩展（以 AMDGPU 为例）
@@ -375,14 +366,12 @@ unsigned SIRegisterInfo::getSpillWeightMultiplier(const MachineInstr &MI) const 
 ##### 逐行逻辑深度拆解
 
 1. **循环深度指数权重（Loop Depth Exponentiation）**：  
-   * 源码中 `std::pow(10.0f, Depth)` 是决定性的。如果一条指令位于深度为 3 的循环中，其权重将乘以 \$10^3 \= 1000\$。这意味着在 RAGreedy 寻找牺牲者（Victim）时，循环内部使用的变量的 Spill Weight 会远高于外层变量。  
+   * 源码中 `std::pow(10.0f, Depth)` 是决定性的。如果一条指令位于深度为 3 的循环中，其权重将乘以 \$10^3 = 1000\$。这意味着在 RAGreedy 寻找牺牲者（Victim）时，循环内部使用的变量的 Spill Weight 会远高于外层变量。  
 2. **GPU 后端为什么极其恐惧 Loop 内 Spill**：  
    * **硬件架构限制**：CPU 拥有强大的乱序执行能力和多级 High-Hit-Rate L1/L2 Cache，Spill 到 Stack 的数据极大概率驻留在 L1 Cache 中，延迟仅 4 周期。而 GPU 的"Spill 到 Stack"实际上是 Spill 到全局显存或 Scratch Memory（由 DRAM/VRAM 模拟）。  
    * **Stall 放大效能**：GPU 依靠高并发 Warp 隐藏延迟。循环内的每次 Spill 读写都会抛出 `BUFFER_STORE_DWORD` / `Flat Store` 指令，导致高达 400\~800 个时钟周期的 Memory Stall。一旦发生在 Loop 内部，流水线将彻底停顿，且多个 Active Warp 会同时抢占 Scratch 带宽，造成严重显存拥堵。  
 3. **Live Range 长度归一化（`Weight / Size`）**：  
    * 简单的权重累加会导致生命周期极长（贯穿整个函数）但仅偶尔使用的变量拥有高 Weight。除以 `LI.getSize()` 后，长生命周期变量的单位密度权重变小，促使 RAGreedy 优先将其进行 `Live Range Splitting`（拆分为多个短区间），将无 Use 的区间驱逐/ Spill 出物理寄存器，从而为 Loop 内部高频使用的短生命周期变量腾出珍贵的物理寄存器。
-
----
 
 ---
 
@@ -393,7 +382,7 @@ unsigned SIRegisterInfo::getSpillWeightMultiplier(const MachineInstr &MI) const 
 
 ##### 核心数据结构与抽象
 
-```
+```cpp
 // MLIR DataFlow / Analysis Framework 概念实现
 
 // 1. 定义 Layout 格结构 (Lattice Element)
@@ -426,7 +415,7 @@ public:
 
 ##### 核心 Layout Propagation 数据流分析算法
 
-```
+```cpp
 // Triton / MLIR 布局传播分析器实现
 
 class LayoutPropagationAnalysis : public DataFlowAnalysis {
@@ -478,7 +467,7 @@ public:
 
 ##### 消除转置（Canonicalization Pass）实现
 
-```
+```cpp
 // 布局传播收敛后的 Canonicalizer 规则
 
 struct EliminateRedundantConvert : public OpRewritePattern<triton::ConvertLayoutOp> {
@@ -521,8 +510,6 @@ struct EliminateRedundantConvert : public OpRewritePattern<triton::ConvertLayout
    * 在布局传播之前，IR 中充斥着由 Frontend 生成的显式 `layout_convert` 或 `transpose` 指令。  
    * 当全图布局在 Lattice 上完成传播后，原本被 `transpose` 隔开的 Elementwise 算子链被赋予了统一的 Layout，使得 `ConvertLayoutOp` 的输入 Layout 与输出 Layout 变得相同。  
    * 此时匹配 `EliminateRedundantConvert` 模式，直接移除 `ConvertLayoutOp` 节点，将其替换为 Direct Passthrough，从而将昂贵的硬件转置（Warp Shuffle / Shared Memory 中转）降为零开销。
-
----
 
 ---
 
@@ -633,15 +620,13 @@ void AMDGPUHazardRecognizer::EmitNoops(unsigned Nops) {
 
 ---
 
----
-
-## 5 大核心编译器机制对比矩阵**
+## 5 大核心编译器机制对比矩阵
 
 | 分析/优化维度 | 涉及源码模块 | 核心判定数据结构 / 算法 | GPU 架构特殊考虑 / 惩罚因素 | 冲突/异常处理动作 |
 | :---- | :---- | :---- | :---- | :---- |
 | **发散不变式外提** | `MachineLICM.cpp` | `MRI->isUniform()` \+ `RegPressureTracker` | 外提发散变量破坏 SIMT Exec Mask；物理寄存器超标导致 Occupancy 下跌 | 拦截外提，强制留留在 Loop 内 |
 | **Tensor 内存复用** | `OneShotBufferize.cpp` | `AnalysisState` \+ Alias / SSA Use-Def 链 | GPU 显存容量与 Alloc 动态分配开销极高 | 存在 RaW 冲突时生成 `memref.alloc()`；无冲突原地复用 |
-| **寄存器溢出评估** | `CalcSpillWeights.cpp` | \$\\text{Weight} \= \\frac{\\sum \\text{Use} \\times 10^{\\text{Depth}}}{\\text{Size}}\$ | Loop 内溢出到 Scratch Memory 会触发数百周期 Stall | 优先溢出/拆分 (Split) \$\\text{SpillWeight}\$ 最低的大区间变量 |
+| **寄存器溢出评估** | `CalcSpillWeights.cpp` | \$\\text{Weight} = \\frac{\\sum \\text{Use} \\times 10^{\\text{Depth}}}{\\text{Size}}\$ | Loop 内溢出到 Scratch Memory 会触发数百周期 Stall | 优先溢出/拆分 (Split) \$\\text{SpillWeight}\$ 最低的大区间变量 |
 | **布局传播与转置** | `LayoutDataFlowAnalysis` | Lattice Join/Meet \+ 不动点迭代 | 消除 Tensor Core `DotOp` 与 Elementwise 算子间转置开销 | 布局统一后擦除 `ConvertLayoutOp` 节点 |
 | **流水线冒险识别** | `AMDGPUHazardRecognizer.cpp` | `History` 滑动窗口 \+ 硬件 Waits 计算 | GPU 缺少 HW Dynamic Bypass；VALU/SALU 跨单元读取存在固定 Latency | 优先调度无依赖指令，无可用指令强插 `s_nop` |
 

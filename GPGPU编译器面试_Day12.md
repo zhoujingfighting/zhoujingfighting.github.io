@@ -123,26 +123,25 @@ MLIR 的函数式 Tensor Dialect（不可变语义）必须通过 Bufferization 
 
 ### **核心类与结构定义**
 
-p  
-namespace mlir {  
+```cpp
+namespace mlir {
 namespace bufferization {
 
-class OneShotAnalysisState {  
-public:  
-// 判断 OpOperand 是否可以原地 (In-place) 复用其对应的 Tensor 内存  
-bool isInPlace(OpOperand \&opOperand) const;
+class OneShotAnalysisState {
+public:
+  // 判断 OpOperand 是否可以原地 (In-place) 复用其对应的 Tensor 内存
+  bool isInPlace(OpOperand &opOperand) const;
 
-// 核心检测算法：判断是否存在 Read-after-Write (RaW) 冲突  
-bool hasReadBeforeWriteConflict(OpOperand \&opOperand, const AnalysisState \&state) const;
+  // 核心检测算法：判断是否存在 Read-after-Write (RaW) 冲突
+  bool hasReadBeforeWriteConflict(OpOperand &opOperand, const AnalysisState &state) const;
 
-// 查找与当前 Tensor 存在潜在别名关系 (Alias) 的所有 Read Uses  
-SetVector\<OpOperand \*\> findConflictingReads(OpOperand \&opOperand) const;  
+  // 查找与当前 Tensor 存在潜在别名关系 (Alias) 的所有 Read Uses
+  SetVector<OpOperand *> findConflictingReads(OpOperand &opOperand) const;
 };
 
-} // namespace bufferization  
+} // namespace bufferization
 } // namespace mlir
-
-````
+```
 
 #### 核心 C++ 源码实现解析
 
@@ -204,7 +203,7 @@ void mlir::bufferization::analyzeOp(Operation *op, OneShotAnalysisState &state) 
     }
   }
 }
-````
+```
 
 ### **逐行逻辑深度拆解**
 
@@ -237,53 +236,49 @@ void mlir::bufferization::analyzeOp(Operation *op, OneShotAnalysisState &state) 
 
 ### **核心 C++ 源码实现解析**
 
-p  
+```cpp
 // llvm/lib/CodeGen/CalcSpillWeights.cpp
 
-float VirtRegAuxInfo::weightCalcHelper(LiveInterval \&LI, SlotIndex \*Start,  
-SlotIndex \*End) {  
-MachineRegisterInfo \&MRI \= MF.getRegInfo();  
-float Weight \= 0.0f;  
-const MachineLoopInfo \*Loops \= VirtRegAuxInfo::Loops;
+float VirtRegAuxInfo::weightCalcHelper(LiveInterval &LI, SlotIndex *Start,
+                                       SlotIndex *End) {
+  MachineRegisterInfo &MRI = MF.getRegInfo();
+  float Weight = 0.0f;
+  const MachineLoopInfo *Loops = VirtRegAuxInfo::Loops;
 
-// 1\. 特殊情况判断：若虚拟寄存器被标记为不可溢出（如 InlineAsm 约束或 Top-Level PhysReg 复制）  
-if (LI.isSpillable() \== false)  
-return VirtRegAuxInfo::getSpillWeightInfinite();
+  // 1. 特殊情况判断：若虚拟寄存器被标记为不可溢出（如 InlineAsm 约束或 Top-Level PhysReg 复制）
+  if (LI.isSpillable() == false)
+    return VirtRegAuxInfo::getSpillWeightInfinite();
 
-// 2\. 遍历该 LiveInterval 在程序中所有的使用（Use）与定义（Def）点  
-for (MachineOperand \&MO : MRI.reg\_nodbg\_operands(LI.reg())) {  
-MachineInstr \*MI \= MO.getParent();  
-if (MI-\>isDebugInstr())  
-continue; // 忽略调试指令，保证 CodeGen 确定性
+  // 2. 遍历该 LiveInterval 在程序中所有的使用（Use）与定义（Def）点
+  for (MachineOperand &MO : MRI.reg_nodbg_operands(LI.reg())) {
+    MachineInstr *MI = MO.getParent();
+    if (MI->isDebugInstr())
+      continue; // 忽略调试指令，保证 CodeGen 确定性
 
-```
-MachineBasicBlock *MBB = MI->getParent();
+    MachineBasicBlock *MBB = MI->getParent();
 
-// 3. 计算当前 BasicBlock 的 Loop 嵌套深度权重
-// 基础 Loop 权重乘数：每加深一层循环，权重按指数级（默认为 10.0f）飙升
-unsigned Depth = Loops ? Loops->getLoopDepth(MBB) : 0;
-float LoopWeight = ShortLanePenalty ? 
-                   std::pow(8.0f, Depth) : std::pow(10.0f, Depth);
+    // 3. 计算当前 BasicBlock 的 Loop 嵌套深度权重
+    // 基础 Loop 权重乘数：每加深一层循环，权重按指数级（默认为 10.0f）飙升
+    unsigned Depth = Loops ? Loops->getLoopDepth(MBB) : 0;
+    float LoopWeight = ShortLanePenalty ? 
+                       std::pow(8.0f, Depth) : std::pow(10.0f, Depth);
 
-// 4. 区分 Write (Def) 与 Read (Use) 的内存访问开销
-// Def 通常需要额外的 Store 指令，内存开销高于 Read (Load)
-float OpWeight = MO.isDef() ? 2.0f : 1.0f;
+    // 4. 区分 Write (Def) 与 Read (Use) 的内存访问开销
+    // Def 通常需要额外的 Store 指令，内存开销高于 Read (Load)
+    float OpWeight = MO.isDef() ? 2.0f : 1.0f;
 
-// 累加当前指令粒度的溢出代价
-Weight += OpWeight * LoopWeight;
-```
+    // 累加当前指令粒度的溢出代价
+    Weight += OpWeight * LoopWeight;
+  }
 
+  // 5. 归一化处理：将总代价除以 LiveInterval 的实际空间/时间跨度 (Size)
+  // 目的：避免长生命周期的变量因 Use 节点多而产生虚高的 Weight，优先 Split/Spill 跨度大的变量
+  float Size = LI.getSize();
+  if (Size == 0) return 0.0f;
+
+  return Weight / Size;
 }
-
-// 5\. 归一化处理：将总代价除以 LiveInterval 的实际空间/时间跨度 (Size)  
-// 目的：避免长生命周期的变量因 Use 节点多而产生虚高的 Weight，优先 Split/Spill 跨度大的变量  
-float Size \= LI.getSize();  
-if (Size \== 0\) return 0.0f;
-
-return Weight / Size;  
-}
-
-````
+```
 
 #### GPU 专属的溢出策略扩展（以 AMDGPU 为例）
 
@@ -301,7 +296,7 @@ unsigned SIRegisterInfo::getSpillWeightMultiplier(const MachineInstr &MI) const 
   }
   return 1;
 }
-````
+```
 
 ### **逐行逻辑深度拆解**
 
@@ -566,7 +561,7 @@ void AMDGPUHazardRecognizer::EmitNoops(unsigned Nops) {
 
 ---
 
-# **5 大核心编译器机制对比矩阵**
+## 5 大核心编译器机制对比矩阵
 
 | 分析/优化维度 | 涉及源码模块 | 核心判定数据结构 / 算法 | GPU 架构特殊考虑 / 惩罚因素 | 冲突/异常处理动作 |
 | :---- | :---- | :---- | :---- | :---- |

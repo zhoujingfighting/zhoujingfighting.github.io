@@ -121,8 +121,6 @@ LogicalResult TmaCreateDescriptorOpLowering::matchAndRewrite(
 
 ---
 
----
-
 ### 题 2 深度解析：GPU 上的指针别名分析（Alias Analysis）与 MemorySSA 挑战
 
 #### 源码级深度剖析与核心实现
@@ -167,8 +165,6 @@ AliasResult NVPTXAAResult::alias(const MemoryLocation &LocA,
 
 ---
 
----
-
 ### 题 3 深度解析：Warp Shuffle 原语的硬件实现与 Butterfly All-Reduce 的编译优化
 
 #### 源码级深度剖析与核心实现
@@ -202,8 +198,6 @@ SDValue createButterflyReduction(SelectionDAG &DAG, const SDLoc &dl,
   * **1. Crossbar 点对点硬件路由**：数据不经片上 Shared Memory 中转，Execution Unit（EU）直接通过内置的 Shuffle Crossbar 在寄存器读写端口之间打通旁路，LaneID ⊕ Offset 拓扑在单周期或极低时钟延迟内完成置换。  
   * **2. 不活跃 Lane 的脏数据隔离**：若分支发散导致部分线程不活跃，`shfl.sync` 依靠传入的 32 位 `Mask` 校验。若目标 Lane 对应的掩码位为 0，硬件直接返回线程自身值或单位元（如加法的 0.0f），阻止非活跃线程读取到历史残余脏数据。  
   * **3. Volta+ ITS 硬件防死锁**：在独立线程调度架构下，若传入的 Mask 包含了尚未到达当前收敛屏障的 Lane，硬件同步器将永久挂起，编译器必须确保生成一致的收敛掩码。
-
----
 
 ---
 
@@ -244,8 +238,6 @@ bool SIInstrInfo::foldImmediate(MachineInstr &UseMI, MachineInstr &DefMI,
 * **逐行逻辑深度拆解**：  
   * **1. 输入/输出硬件修饰符吸收**：GPU ALU 包含免费的前置反相器、绝对值转换器和输出钳位器。后端的窥孔扫描器匹配到紧邻的取反（`FNEG`）或饱和截断（`clamp(0.0, 1.0)`）时，擦除前置指令并直接在目标操作数上标记 `.neg` 或 `.sat` 修饰符，实现单指令吸收。  
   * **2. IEEE-754 精度与 FMA 差异**：`FMUL + FADD`（即 MAD）会经历两次独立的舍入（Rounding），可能产生中间下溢；`FMA` 在流水线中保留无限精度并在末端仅执行一次最终舍入。在严格模式下（`-ffp-contract=off`），编译器绝对禁止通过窥孔无故将分立乘加合并为 FMA，避免二进制结果偏离。
-
----
 
 ---
 

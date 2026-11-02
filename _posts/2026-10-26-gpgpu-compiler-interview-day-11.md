@@ -103,10 +103,8 @@ FlatAffineValueConstraints buildSkewedIterationDomain(AffineForOp forOp, int ske
 ```
 
 * **逐行逻辑深度拆解**：  
-  * **多面体模型与依赖向量**：对于二维嵌套循环，若原始数据依赖向量为 \$\\vec{d} \= (1, \-1)^T\$，代表当前迭代 \$(i, j)\$ 依赖于上一次外层循环但后一次内层循环的值 \$(i-1, j+1)\$。内层维度包含负分量（\$-1\$），直接对内层进行并行化会颠倒执行顺序，引发写后读（RAW）数据竞争。  
-  * **坐标倾斜消除负分量**：通过仿射坐标倾斜变换，建立新坐标系 \$j' \= k \\cdot i \+ j\$。当选取 \$k \\ge 1\$ 时，变换后的依赖向量在内层维度的分量被抬升为 \$k \- 1 \\ge 0\$。内层依赖分量归零解除时序约束，使得内层循环可以合法地通过 `affine.parallel` 或映射为 GPU 的 `thread_id.x` 展开并行执行。
-
----
+  * **多面体模型与依赖向量**：对于二维嵌套循环，若原始数据依赖向量为 \$\\vec{d} = (1, \-1)^T\$，代表当前迭代 \$(i, j)\$ 依赖于上一次外层循环但后一次内层循环的值 \$(i-1, j+1)\$。内层维度包含负分量（\$-1\$），直接对内层进行并行化会颠倒执行顺序，引发写后读（RAW）数据竞争。  
+  * **坐标倾斜消除负分量**：通过仿射坐标倾斜变换，建立新坐标系 \$j' = k \\cdot i \+ j\$。当选取 \$k \\ge 1\$ 时，变换后的依赖向量在内层维度的分量被抬升为 \$k \- 1 \\ge 0\$。内层依赖分量归零解除时序约束，使得内层循环可以合法地通过 `affine.parallel` 或映射为 GPU 的 `thread_id.x` 展开并行执行。
 
 ---
 
@@ -146,10 +144,8 @@ void SwingModuloScheduling::applyModuloVariableExpansion(
 ```
 
 * **逐行逻辑深度拆解**：  
-  * **II 与多阶段展开的博弈**：SMS 算法追求最小的发起间隔（II）以最大化流水线重叠度。然而，较小的 II 会拉长变量跨越的阶段数（\$\\text{Stages} \= \\lceil \\text{Lifetime} / II \\rceil\$），导致同一变量在稳态循环中有多个版本同时存活。  
+  * **II 与多阶段展开的博弈**：SMS 算法追求最小的发起间隔（II）以最大化流水线重叠度。然而，较小的 II 会拉长变量跨越的阶段数（\$\\text{Stages} = \\lceil \\text{Lifetime} / II \\rceil\$），导致同一变量在稳态循环中有多个版本同时存活。  
   * **GPU 寄存器乘法放大与 Spill**：为防止后一迭代写入覆盖前一迭代尚未读取的值，MVE 被迫将每个跨迭代寄存器分裂为 \$K\$ 个全新副本。在 SIMT 模型下，每个分裂的 32 位寄存器在整束 Warp 中会物理乘以 32。若处理的是 128 位向量，单个 MVE 展开即消耗数百个物理寄存器，直接击穿 SM 物理上限，迫使后端触发巨额 Local Memory Spill。
-
----
 
 ---
 
@@ -194,8 +190,6 @@ bool verifyConvergenceTokens(Function &F, DominatorTree &DT) {
 
 ---
 
----
-
 ### 题 4 深度解析：Global Memory 非连续 Atomic Reduction 的编译聚合优化
 
 #### 源码级深度剖析与核心实现
@@ -231,8 +225,6 @@ bool NVPTXDAGToDAGISel::SelectAtomicRed(SDNode *N) {
 
 ---
 
----
-
 ### 题 5 深度解析：低比特（FP8 / INT4）矩阵乘中的 Scale Factor 传播与饱和截断编译处理
 
 #### 源码级深度剖析与核心实现
@@ -261,7 +253,7 @@ SDValue LowerTruncWithSaturation(SDValue Op, SelectionDAG &DAG) {
 
 * **逐行逻辑深度拆解**：  
   * **硬件级数值饱和钳位（Saturation Clamping）**：FP8 E4M3 动态上限极低（448）。若采用无保护的截断，超出范围的数值会发生符号反转回绕（Wrap-around）直接变成极小负数，彻底摧毁深度神经网络精度。编译器在指令选择阶段将 `arith.truncf` 严格映射为带有硬件钳位标志的转换节点（`CVT_FLOAT_TO_FP8_SAT`），超界自动饱和锁定在极限值。  
-  * **Scale Factor 流水线融合（Post-Scale Fusion）**：为杜绝独立的反量化内核带来成倍的内存读取开销，编译器利用结合律 \$A \\cdot (B \\times S) \= (A \\cdot B) \\times S\$。在循环分块（Tiling）阶段，把 Scale Factor 的异步载入与矩阵数据块加载流水线绑定，在 Tensor Core 硬件以低比特吞吐完成矩阵乘法后，直接在累加器寄存器上执行向量化缩放点乘，实现反量化零延迟掩盖。
+  * **Scale Factor 流水线融合（Post-Scale Fusion）**：为杜绝独立的反量化内核带来成倍的内存读取开销，编译器利用结合律 \$A \\cdot (B \\times S) = (A \\cdot B) \\times S\$。在循环分块（Tiling）阶段，把 Scale Factor 的异步载入与矩阵数据块加载流水线绑定，在 Tensor Core 硬件以低比特吞吐完成矩阵乘法后，直接在累加器寄存器上执行向量化缩放点乘，实现反量化零延迟掩盖。
 
 ---
 

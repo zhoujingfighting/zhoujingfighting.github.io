@@ -109,10 +109,8 @@ void LiveIntervals::computeSubRangeUndefs(SmallVectorImpl<LiveInterval::SubRange
 
 * **逐行逻辑深度拆解**：  
   * **LaneMask 细粒度追踪**：通过 TableGen 生成的 `SubRegIndexTable`，系统为每个子通道映射独立的二进制掩码（如 32-bit `sub0` 占 `0x1`，`sub1` 占 `0x2`）。`computeSubRangeUndefs` 确保当仅写入宽向量的部分通道时，未被覆盖的通道生命周期得以精确保留，避免错误扩大冲突区间。  
-  * **外部碎片化（External Fragmentation）机理**：宽向量（如 128 位 `v4f32`）受硬件严格约束，要求物理起始编号能被 4 整除（V\_{4k}）。若分配器散落分配孤立标量破坏了连续区间，即便空闲 VGPR 总数充足，也会因缺乏满足 4 寄存器对齐的物理连续块而被迫触发虚假 Spill。  
+  * **外部碎片化（External Fragmentation）机理**：宽向量（如 128 位 `v4f32`）受硬件严格约束，要求物理起始编号能被 4 整除（V_{4k}）。若分配器散落分配孤立标量破坏了连续区间，即便空闲 VGPR 总数充足，也会因缺乏满足 4 寄存器对齐的物理连续块而被迫触发虚假 Spill。  
   * **着色启发式对策**：RAGreedy 结合 `TargetRegisterInfo::getRegAllocationHints` 优先为尺寸大、对齐约束严的超寄存器着色，再使用标量填补碎块空间。
-
----
 
 ---
 
@@ -156,8 +154,6 @@ LogicalResult vectorizeAsLinalgGeneric(linalg::GenericOp genericOp,
 
 ---
 
----
-
 ### 题 3 深度解析：硬件级异步屏障（Asynchronous Barrier / mbarrier）的原理与编译调度
 
 #### 源码级深度剖析与核心实现
@@ -187,8 +183,6 @@ SDValue NVPTXTargetLowering::LowerMBarrierArriveExpectTx(SDValue Op, SelectionDA
 * **逐行逻辑深度拆解**：  
   * **硬件计数追踪**：`mbarrier.arrive.expect_tx` 显式写入本次阶段需等待的总传输字节。硬件 DMA 引擎直接与屏障控制器硬连线通信，每写回一段 Cache Line 自动递减未决字节数，无需占用计算核心。  
   * **依赖图松耦合解耦**：调度器在构建 `ScheduleDAG` 时，不把 `arrive` 和 `wait` 视为全局同步阻断点，而是作为弱依赖边，允许在两指令间填充深层的算术计算，实现超长访存延迟的高效重叠掩盖。
-
----
 
 ---
 
@@ -226,8 +220,6 @@ bool SIFoldOperands::tryConstantFoldOp(MachineInstr &MI, unsigned OpIdx,
 * **逐行逻辑深度拆解**：  
   * **常数总线争用检测**：`countConstantBusUsers` 统计指令中已有的 Literal 或标量 SGPR 读取。若同时使用两个非常规常量，硬件指令字解码器无法在单周期完成数据路由。  
   * **指令膨胀机制**：折叠被阻断后，编译器被迫在发射前插入一条 `s_mov_b32` 将多余常量载入额外的标量寄存器，或将 32 位编码扩展为带 64 位 Literal 扩展字的指令格式，导致二进制体积骤增并加剧 I-Cache 负担。
-
----
 
 ---
 

@@ -137,7 +137,7 @@ LegalizerHelper::fewerElementsVector(MachineInstr &MI, unsigned OpIdx, LLT Narro
 1. **SSA 图的拓扑解构（Unmerge Phase）**：  
    当输入指令为 `%res:_(v3s32) = G_ADD %a:_(v3s32), %b:_(v3s32)` 时，由于硬件缺乏 96 位向量算术单元，`fewerElementsVector` 被触发。`extractParts` 方法会自动检查硬件支持的最小切片（例如 `s32` 标量）。它会在 SSA 图中插入 `G_UNMERGE_VALUES` 或多个 `G_EXTRACT_VECTOR_ELT` 指令：
 
-```
+```llvm
 %a0:_(s32), %a1:_(s32), %a2:_(s32) = G_UNMERGE_VALUES %a:_(v3s32)
 %b0:_(s32), %b1:_(s32), %b2:_(s32) = G_UNMERGE_VALUES %b:_(v3s32)
 ```
@@ -159,8 +159,6 @@ LegalizerHelper::fewerElementsVector(MachineInstr &MI, unsigned OpIdx, LLT Narro
 
 ---
 
----
-
 ### 题 2 深度解析：TargetRegisterInfo.cpp 中的寄存器分配约束与 Allocation Hints 注入
 
 #### 源码级深度剖析与核心实现
@@ -174,44 +172,43 @@ LegalizerHelper::fewerElementsVector(MachineInstr &MI, unsigned OpIdx, LLT Narro
 
 ##### 核心类与核心代码块逻辑
 
-p  
-// llvm/lib/Target/AMDGPU/SIRegisterInfo.cpp  
-bool SIRegisterInfo::getRegAllocationHints(  
-Register VirtReg, ArrayRef Order,  
-SmallVectorImpl \&Hints, const MachineFunction \&MF,  
-const VirtRegMap \*VRM, const LiveRegMatrix \*Matrix) const {
+```cpp
+// llvm/lib/Target/AMDGPU/SIRegisterInfo.cpp
+bool SIRegisterInfo::getRegAllocationHints(
+    Register VirtReg, ArrayRef<MCPhysReg> Order,
+    SmallVectorImpl<MCPhysReg> &Hints, const MachineFunction &MF,
+    const VirtRegMap *VRM, const LiveRegMatrix *Matrix) const {
 
-const MachineRegisterInfo \&MRI \= MF.getRegInfo();  
-const TargetRegisterClass \*RC \= MRI.getRegClass(VirtReg);
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+  const TargetRegisterClass *RC = MRI.getRegClass(VirtReg);
 
-// 1. 检查当前虚拟寄存器是否属于需要特殊对齐的 64 位向量类 (VReg\_64)  
-if (RC-\>hasSuperClassEq(\&AMDGPU::VReg\_64RegClass)) {  
-for (MCPhysReg PhysReg : Order) {  
-// 提取物理寄存器基号，施加 HW 要求的 2 对齐 (偶数号检查)  
-unsigned RegNo \= PhysReg \- AMDGPU::VGPR0;  
-if (RegNo % 2 \== 0\) {  
-Hints.push\_back(PhysReg);  
-}  
-}  
-// 返回 true 表示 Hints 列表拥有最高优先搜索权  
-return true;  
+  // 1. 检查当前虚拟寄存器是否属于需要特殊对齐的 64 位向量类 (VReg_64)
+  if (RC->hasSuperClassEq(&AMDGPU::VReg_64RegClass)) {
+    for (MCPhysReg PhysReg : Order) {
+      // 提取物理寄存器基号，施加 HW 要求的 2 对齐 (偶数号检查)
+      unsigned RegNo = PhysReg - AMDGPU::VGPR0;
+      if (RegNo % 2 == 0) {
+        Hints.push_back(PhysReg);
+      }
+    }
+    // 返回 true 表示 Hints 列表拥有最高优先搜索权
+    return true;
+  }
+
+  // 2. 对于 128 位向量 (VReg_128)，施加 4-Alignment 约束
+  if (RC->hasSuperClassEq(&AMDGPU::VReg_128RegClass)) {
+    for (MCPhysReg PhysReg : Order) {
+      unsigned RegNo = PhysReg - AMDGPU::VGPR0;
+      if (RegNo % 4 == 0) {
+        Hints.push_back(PhysReg);
+      }
+    }
+    return true;
+  }
+
+  // 回退到 LLVM 标准的 Copy-Hint 逻辑
+  return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM, Matrix);
 }
-
-// 2. 对于 128 位向量 (VReg\_128)，施加 4-Alignment 约束  
-if (RC-\>hasSuperClassEq(\&AMDGPU::VReg\_128RegClass)) {  
-for (MCPhysReg PhysReg : Order) {  
-unsigned RegNo \= PhysReg \- AMDGPU::VGPR0;  
-if (RegNo % 4 \== 0\) {  
-Hints.push\_back(PhysReg);  
-}  
-}  
-return true;  
-}
-
-// 回退到 LLVM 标准的 Copy-Hint 逻辑  
-return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM, Matrix);  
-}
-
 ```
 
 ###### 逐行逻辑深度拆解与着色器干预机制
@@ -224,8 +221,6 @@ return TargetRegisterInfo::getRegAllocationHints(VirtReg, Order, Hints, MF, VRM,
 
 3. **从后置修复到前置提示（Preemptive Avoidance vs Post-Fixup）**：
    通过在 `SIRegisterInfo::getRegAllocationHints` 中前置注入偶数号/4-倍数号物理寄存器，LLVM 能保证 99% 以上的宽字寄存器分配直接满足硬件对齐要求。这避免了后置 Pass（如 `FixupVectorRegisters`）通过强行插入额外的 `v_mov_b32` 移位指令来纠正对齐，从而显著降低了指令膨胀（Code Bloat）和寄存器拷贝开销。
-
----
 
 ---
 
@@ -303,8 +298,6 @@ void AMDGPUHazardRecognizer::EmitInstruction(SUnit *SU) {
 
 ---
 
----
-
 ### 题 4 深度解析：ConvertGPUToNVVMPass.cpp 中的线程内置索引映射与 Dynamic LDS 分配
 
 #### 源码级深度剖析与核心实现
@@ -318,7 +311,7 @@ void AMDGPUHazardRecognizer::EmitInstruction(SUnit *SU) {
 
 ##### 核心类与核心代码块逻辑
 
-```
+```cpp
 // mlir/lib/Conversion/GPUCommon/IndexIntrinsicsOpLowering.h
 template <typename Op, typename IntrinsicOp>
 struct GPUIndexIntrinsicOpLowering : public OpRewritePattern<Op> {
@@ -392,8 +385,6 @@ struct GPUDynamicSharedMemoryOpLowering : public ConvertOpToLLVMPattern<gpu::Dyn
 
 ---
 
----
-
 ### 题 5 深度解析：Loop Pipelining 与 TMA 异步屏障代数重构
 
 #### 源码级深度剖析与核心实现
@@ -430,7 +421,7 @@ struct GPUDynamicSharedMemoryOpLowering : public ConvertOpToLLVMPattern<gpu::Dyn
 
 ##### 稳态软件流水（Pipelined Loop）核心 C++ / PTX 代码拓扑
 
-```
+```cpp
 // 编译器生成的 Hopper GEMM 主循环伪代码 (NVVM PTX 视角)
 void emitHopperMainLoop(int num_iterations, DynamicSharedMemory smem) {
   // 跨迭代状态变量 (Loop-carried Variables)
@@ -489,9 +480,7 @@ void emitHopperMainLoop(int num_iterations, DynamicSharedMemory smem) {
 
 ---
 
----
-
-## 5 深度技术对比**
+## 5 深度技术对比
 
 | 优化阶段 / 机制 | 解决的核心硬件/软件瓶颈 | LLVM/MLIR 关键 IR 操作符与 IR 节点 | 错误处理不当的后果 |
 | :---- | :---- | :---- | :---- |
