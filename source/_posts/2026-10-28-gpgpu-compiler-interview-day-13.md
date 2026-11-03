@@ -503,4 +503,5 @@ void emitHopperMainLoop(int num_iterations, DynamicSharedMemory smem) {
 ---
 
 > 👈 **上一期回顾**：**[Day 12：MachineLICM、OneShotBufferize、RAGreedy 与机制对比](/gpu-compiler/2026-10-27-gpgpu-compiler-interview-day-12/)**
+> 👉 **下一期推荐**：**[Day 14：VectorCombine、指令级活跃区间切分、SASS 控制码与 Memref 逃逸](/gpu-compiler/2026-10-29-gpgpu-compiler-interview-day-14/)**
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
