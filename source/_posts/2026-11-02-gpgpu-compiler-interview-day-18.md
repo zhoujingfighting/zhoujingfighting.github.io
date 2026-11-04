@@ -321,4 +321,5 @@ void foldPipelinePointers(scf::ForOp forOp, Value initialPtr, int64_t tileByteSt
 ---
 
 > 👈 **上一期回顾**：**[Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/)**
+> 👉 **下一期推荐**：**[Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/)**
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。

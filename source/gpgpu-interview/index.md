@@ -64,6 +64,7 @@ graph TD
 | **Day 16** | [**精选 Day 16：发散出口规约、子区间干涉、寻址偏移折叠与内存复用**](/gpu-compiler/2026-10-31-gpgpu-compiler-interview-day-16/) | AMDGPUUnifyDivergentExitNodes 发散控制流出口规约与统一汇聚块、LiveInterval advanceTo 跨步推进与 LaneBitmask 子区间干涉检测、AMDGPUISelDAGToDAG Flat/Global 寻址模式与偏移折叠、ConvertVectorToNVVM 向量降级与寄存器切片、Triton/IREE 跨算子共享内存 Buffer 别名复用 | ✅ **已发布** |
 | **Day 17** | [**精选 Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲**](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/) | RegisterCoalescer LaneBitmask 宽向量子寄存器合并与死锁防范、InferAddressSpaces 格模型（Lattice）与 Flat/Generic 消除克隆降级、AMDGPUISelDAGToDAG 平面原子累加降级与 Cache Coherence 一致性、ConvertVectorToGPU Warp Shuffle 归约、Triton/IREE 异步预取与共享内存三级缓冲 | ✅ **已发布** |
 | **Day 18** | [**精选 Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数**](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/) | BasicAliasAnalysis 跨通道 GEP 线性化分解与发散别名推导、SlotIndexes 四分槽位微粒度模型与虚拟寄存器死区精准刻画、SelectionDAGISel 硬件位段提取（BFE）匹配与 INT4/FP8 解包、ConvertGPUToROCDL Wave 广播降级与硬件原语、Triton/AI 编译器流水线指针代数折叠与常量寻址吸收 | ✅ **已发布** |
+| **Day 19** | [**精选 Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置**](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/) | AMDGPUPromoteAlloca 私有栈提升至 LDS/向量与动态回退、SelectionDAGLegalize 饱和算术合法化与硬件 Clamp/MED3 单周期融合、MachinePipeliner RecMII 循环依赖最小间隔求解、ConvertLinalgToLoops 动态边界剥离（Bound Peeling）、Triton/IREE 片上 LDS 矩阵转置与双向无冲突 Bank Swizzling | ✅ **已发布** |
 
 ### 模块一：GPGPU 体系结构与硬件机制（地基篇）
 
