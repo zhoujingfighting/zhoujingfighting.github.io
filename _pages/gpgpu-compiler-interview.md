@@ -73,6 +73,8 @@ graph TD
 | **Day 17** | [**精选 Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲**](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/) | RegisterCoalescer LaneBitmask 宽向量子寄存器合并与死锁防范、InferAddressSpaces 格模型（Lattice）与 Flat/Generic 消除克隆降级、AMDGPUISelDAGToDAG 平面原子累加降级与 Cache Coherence 一致性、ConvertVectorToGPU Warp Shuffle 归约、Triton/IREE 异步预取与共享内存三级缓冲 | ✅ **已发布** |
 | **Day 18** | [**精选 Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数**](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/) | BasicAliasAnalysis 跨通道 GEP 线性化分解与发散别名推导、SlotIndexes 四分槽位微粒度模型与虚拟寄存器死区精准刻画、SelectionDAGISel 硬件位段提取（BFE）匹配与 INT4/FP8 解包、ConvertGPUToROCDL Wave 广播降级与硬件原语、Triton/AI 编译器流水线指针代数折叠与常量寻址吸收 | ✅ **已发布** |
 | **Day 19** | [**精选 Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置**](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/) | AMDGPUPromoteAlloca 私有栈提升至 LDS/向量与动态回退、SelectionDAGLegalize 饱和算术合法化与硬件 Clamp/MED3 单周期融合、MachinePipeliner RecMII 循环依赖最小间隔求解、ConvertLinalgToLoops 动态边界剥离（Bound Peeling）、Triton/IREE 片上 LDS 矩阵转置与双向无冲突 Bank Swizzling | ✅ **已发布** |
+| **Day 20** | [**精选 Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词**](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/) | DivergenceAnalysis 同步发散与非结构化循环出口判定、SelectionDAG 巨大基本块分块与早筛回退、AMDGPU SIInsertWaitcnts 记分牌精确推导、MLIR 动态共享内存符号降级与对齐、Triton 谓词折叠优化 | ✅ **已发布** |
+| **Day 21** | [**精选 Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级**](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/) | GlobalISel RegBankSelect 标量/向量寄存器库映射与跨 Bank 拷贝、SelectionDAG 除法取模公共子表达式折叠、SIPreEmitPeephole EXEC 全零短路消除、Subgroup WMMA/MFMA 矩阵降级、Triton 非连续访存合并重排 | ✅ **已发布** |
 
 ### 模块一：GPGPU 体系结构与硬件机制（地基篇）
 

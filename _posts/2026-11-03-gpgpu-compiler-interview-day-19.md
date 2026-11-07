@@ -334,4 +334,5 @@ public:
 ---
 
 > 👈 **上一期回顾**：**[Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/)**
+> 👉 **下一期推荐**：**[Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)**
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
