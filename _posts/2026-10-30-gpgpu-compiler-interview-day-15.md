@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 指令调度, 循环优化, 内存模型, 面�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第15期（Day 15）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第15期（Day 15）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：LoopVectorize 非均匀指针与 SCEV 仿射步长判别、ScheduleDAGRRList Sethi-Ullman 标号与寄存器减压调度、TargetLowering 整数除法魔数乘法与 IEEE-754 浮点倒数展开、AffineStructures 多面体 Fourier-Motzkin 依赖测试与 GCD 检验、Triton/IREE Bank-Aware 共享内存布局分配器与端口冲突消解。
@@ -324,6 +324,6 @@ private:
 
 ---
 
-> 👈 **上一期回顾**：**[Day 14：VectorCombine、指令级活跃区间切分、SASS 控制码与 Memref 逃逸](/gpu-compiler/2026-10-29-gpgpu-compiler-interview-day-14/)**
-> 👉 **下一期推荐**：**[Day 16：发散出口规约、子区间干涉、寻址偏移折叠与内存复用](/gpu-compiler/2026-10-31-gpgpu-compiler-interview-day-16/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 14：VectorCombine、指令级活跃区间切分、SASS 控制码与 Memref 逃逸**](/gpu-compiler/2026-10-29-gpgpu-compiler-interview-day-14/)
+> 👉 **下一期推荐**：[**Day 16：发散出口规约、子区间干涉、寻址偏移折叠与内存复用**](/gpu-compiler/2026-10-31-gpgpu-compiler-interview-day-16/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

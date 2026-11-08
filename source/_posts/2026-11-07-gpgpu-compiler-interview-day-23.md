@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 编译优化, 流水线冒险, 访存优化, �
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第23期（Day 23）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第23期（Day 23）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：AMDGPUInsertWaitStates 流水线气泡填充与 HazardRecognizer 硬件冲突消除、SelectionDAG LegalizeTypes 标量扩展（PromoteFloat）与 FP16/BF16 半精度合法化、MachineSink 循环前导不变式安全下沉与寄存器生命周期压缩、MLIR ConvertGPUToNVVM Shuffle 广播原语映射与高维物理 Lane 线性化、Triton/IREE 共享内存多级缓冲（Multi-Buffering）阶段推进与回跳无除法对齐。
@@ -343,5 +343,5 @@ void buildPipelinedLoop(scf::ForOp forOp, int numStages) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化**](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

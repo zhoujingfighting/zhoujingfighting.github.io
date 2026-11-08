@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, 算子融合, 寄存器分配, 内存模型, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第3期（Day 3）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第3期（Day 3）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：循环融合依赖合法性判定（Distance/Direction Vector）、MLIR One-Shot Bufferize 别名与就地复用分析、GPU 寄存器溢出惩罚与 Rematerialization 重计算博弈、Hopper/CDNA3 集群同步（Cluster Barrier）调度约束、GPU 弱内存模型与 Release-Acquire 缓存一致性下发。
@@ -663,6 +663,6 @@ SDValue SITargetLowering::lowerATOMIC_STORE(SDValue Op, SelectionDAG &DAG) const
 
 ---
 
-> 👈 **上一期回顾**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)**
-> 👉 **下一期推荐**：**[Day 4：GlobalISel、Fragment 布局、发散展开与异步流水](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 2：标量优化、Bank Conflict、软流水与指令发射**](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)
+> 👉 **下一期推荐**：[**Day 4：GlobalISel、Fragment 布局、发散展开与异步流水**](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

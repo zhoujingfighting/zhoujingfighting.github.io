@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, 面试, 体系结构, 编译优化]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第一期（Day 1）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第一期（Day 1）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：硬件资源约束（Occupancy & Spilling）、SIMT 执行模型与控制流结构化、LLVM 异构地址空间体系、中后端访存合并与向量化安全分析、细粒度 GPU 内存模型及调度约束。
@@ -553,5 +553,5 @@ void SelectionDAGBuilder::visitFence(const FenceInst &I) {
 
 ---
 
-> 👉 **下一期推荐**：**[Day 2：标量优化、Bank Conflict、软流水与指令发射](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👉 **下一期推荐**：[**Day 2：标量优化、Bank Conflict、软流水与指令发射**](/gpu-compiler/2026-10-17-gpgpu-compiler-interview-day-2/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

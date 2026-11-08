@@ -111,9 +111,9 @@ void AMDGPUResourceUsageAnalysis::analyzeResourceUsage(
 
 ---
 
-## 4. 最小可复现验证用例（HIP / Compiler Explorer）
+## 4. 最小可复现验证用例 (HIP / Compiler Explorer)
 
-你可以将以下代码直接粘贴到 [Compiler Explorer (godbolt.org)](https://godbolt.org/)，选择 **HIP-Clang (如 x86_64 amdgcn AMD GPU HIP-Clang)**，并输入参数 `-O2 --offload-arch=gfx90a`：
+你可以将以下代码直接粘贴到 [Compiler Explorer (godbolt.org)](https://godbolt.org/)，选择 **HIP-Clang**（如 `x86_64 amdgcn AMD GPU HIP-Clang`），并输入参数 `-O2 --offload-arch=gfx90a`：
 
 ```cpp
 #include <hip/hip_runtime.h>

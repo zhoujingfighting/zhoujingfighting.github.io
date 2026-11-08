@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, Hazard, DSMem, 标量化, Auto-Tuning, Warp原语, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第6期（Day 6）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第6期（Day 6）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：TargetHazardRecognizer 时钟精确状态机与 Post-RA 流水线冲突判定、Hopper 分布式共享内存（DSMem / Cluster SM）跨块数据交换编译与 ScheduleDAG Chain 隔离、标量化（Scalarization）与宽向量访存的动态博弈（非对齐与 Bank 冲突）、AI 编译器（Triton/TVM）Tile Size 自动调优（Auto-Tuning）与多维硬件代价模型、Warp-Level 原语与 Active Mask 数据流传播消除及收敛安全边界。
@@ -697,6 +697,6 @@ bool optimizeWarpMask(Function &F, DominatorTree &DT) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/)**
-> 👉 **下一期推荐**：**[Day 7：参数传递、发射端口饥饿、动态调用与内存布局](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划**](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/)
+> 👉 **下一期推荐**：[**Day 7：参数传递、发射端口饥饿、动态调用与内存布局**](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

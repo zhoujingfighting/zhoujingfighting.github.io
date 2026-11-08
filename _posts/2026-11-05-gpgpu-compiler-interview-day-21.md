@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, GlobalISel, ROCm, 指令选择, 寄存器分�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第21期（Day 21）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第21期（Day 21）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：GlobalISel RegBankSelect 标量/向量寄存器银行映射与跨 Bank 拷贝切口代价、SelectionDAG/DAGCombiner 除法与取模公共子表达式折叠（SDIVREM/UDIVREM）、AMDGPU SIPreEmitPeephole 标量条件分支与 EXEC 掩码全零短路消除、MLIR GPUCommon Subgroup/Warp 矩阵扩展降级（WMMA/MFMA）与扁平结构体打包、Triton/AI 编译器非连续张量跨步重排（Non-Contiguous Coalescing）与多线程交织合并。
@@ -346,6 +346,6 @@ Attribute fixEncoding(OpBuilder &b, BlockedEncodingAttr oldLayout, ArrayRef<int6
 
 ---
 
-> 👈 **上一期回顾**：**[Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)**
-> 👉 **下一期推荐**：**[Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词**](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)
+> 👉 **下一期推荐**：[**Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化**](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

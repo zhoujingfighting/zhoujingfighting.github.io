@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 体系结构, 寄存器分配, 访存优化, �
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第16期（Day 16）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第16期（Day 16）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：AMDGPUUnifyDivergentExitNodes 发散控制流出口收敛与统一退出块重构、LiveInterval advanceTo 跨步推进与 LaneBitmask 子区间干涉检测、AMDGPUISelDAGToDAG Flat/Global 寻址模式与立即数/标量偏移折叠、ConvertVectorToNVVM 3D/4D Vector Transfer 降级与分布式寄存器切片映射、Triton/IREE 跨算子共享内存活跃期分析与 Buffer 别名复用。
@@ -344,6 +344,6 @@ public:
 
 ---
 
-> 👈 **上一期回顾**：**[Day 15：循环向量化、Sethi-Ullman 调度、除法展开与 Bank 冲突](/gpu-compiler/2026-10-30-gpgpu-compiler-interview-day-15/)**
-> 👉 **下一期推荐**：**[Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 15：循环向量化、Sethi-Ullman 调度、除法展开与 Bank 冲突**](/gpu-compiler/2026-10-30-gpgpu-compiler-interview-day-15/)
+> 👉 **下一期推荐**：[**Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲**](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

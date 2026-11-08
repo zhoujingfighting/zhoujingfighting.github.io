@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, 面试, 体系结构, 软流水, 访存优化]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第二期（Day 2）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第二期（Day 2）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：标量/向量双套硬件管线协同（UniformityAnalysis）、片上共享内存（Shared Memory / LDS）Bank 冲突与 Swizzling 消除、软流水（Software Pipelining）与异步拷贝（Async Copy）硬件演进、物理寄存器体冲突（Register Bank Conflict）与操作数收集器（Operand Collector）、非确定延迟指令的记分牌（Scoreboard）与 Waitcnt 编译下发。
@@ -818,6 +818,6 @@ void SIInsertWaitcnts::handleInstruction(MachineInstr &MI,
 
 ---
 
-> 👈 **上一期回顾**：**[Day 1：体系结构、控制流、LLVM 优化与内存模型](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/)**
-> 👉 **下一期推荐**：**[Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 1：体系结构、控制流、LLVM 优化与内存模型**](/gpu-compiler/2026-10-16-gpgpu-compiler-interview-day-1/)
+> 👉 **下一期推荐**：[**Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步**](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

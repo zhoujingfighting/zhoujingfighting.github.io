@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, SASS, 寄存器分配, 指令调度, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第14期（Day 14）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第14期（Day 14）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：VectorCombine 向量标量化与代数洗牌穿透、RAGreedy 单指令级别生命周期切分与 Spill 权衡、NVIDIA SASS 控制码静态延迟与硬件记分牌仲裁、MLIR BufferDeallocation 所有权逃逸与克隆提升、Triton DotOp 到 Blocked 分布式张量布局转换与 Shuffle 消除。
@@ -318,6 +318,6 @@ LogicalResult ConvertLayoutOpConversion::matchAndRewrite(
 
 ---
 
-> 👈 **上一期回顾**：**[Day 13：LegalizerHelper、寄存器提示、Hazard 仲裁与 TMA 重构](/gpu-compiler/2026-10-28-gpgpu-compiler-interview-day-13/)**
-> 👉 **下一期推荐**：**[Day 15：循环向量化、Sethi-Ullman 调度、除法展开与 Bank 冲突](/gpu-compiler/2026-10-30-gpgpu-compiler-interview-day-15/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 13：LegalizerHelper、寄存器提示、Hazard 仲裁与 TMA 重构**](/gpu-compiler/2026-10-28-gpgpu-compiler-interview-day-13/)
+> 👉 **下一期推荐**：[**Day 15：循环向量化、Sethi-Ullman 调度、除法展开与 Bank 冲突**](/gpu-compiler/2026-10-30-gpgpu-compiler-interview-day-15/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

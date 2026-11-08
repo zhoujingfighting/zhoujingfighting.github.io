@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, 寄存器分配, mbarrier, 指令编码, 缓存优化,
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第10期（Day 10）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第10期（Day 10）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：物理寄存器别名（Super/Sub-Reg）与碎片化排布、linalg.generic 到 vector.contract 到硬件 MMA 指令降级链、mbarrier 硬件事务异步屏障与无气泡流水、GPU 变长指令编码与立即数冲突 (Literal Hazards)、动态步长访存对 L2 穿透与预取冲击。
@@ -263,6 +263,6 @@ void insertPrefetchInstruction(IRBuilder<> &Builder, Value *Ptr, bool IsWrite) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 9：TMA 分块、别名分析、Shuffle 原语与复合指令](/gpu-compiler/2026-10-24-gpgpu-compiler-interview-day-9/)**
-> 👉 **下一期推荐**：**[Day 11：Loop Skewing、SMS 软流水、死锁验证与低比特编译](/gpu-compiler/2026-10-26-gpgpu-compiler-interview-day-11/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 9：TMA 分块、别名分析、Shuffle 原语与复合指令**](/gpu-compiler/2026-10-24-gpgpu-compiler-interview-day-9/)
+> 👉 **下一期推荐**：[**Day 11：Loop Skewing、SMS 软流水、死锁验证与低比特编译**](/gpu-compiler/2026-10-26-gpgpu-compiler-interview-day-11/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 编译优化, 寄存器分配, 流水线冒险
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第12期（Day 12）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第12期（Day 12）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：MachineLICM 发散不变式过滤与寄存器压力感知、MLIR OneShotBufferize RaW 读写冲突与内存原地复用、RAGreedy Live Range Splitting 与 GPU 专属 Spill Cost 评估、Triton/MLIR Layout Propagation 算法与转置消除、AMDGPU 流水线冒险识别与 5 大核心编译器机制对比矩阵。
@@ -642,6 +642,6 @@ void AMDGPUHazardRecognizer::EmitNoops(unsigned Nops) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 11：Loop Skewing、SMS 软流水、死锁验证与低比特编译](/gpu-compiler/2026-10-26-gpgpu-compiler-interview-day-11/)**
-> 👉 **下一期推荐**：**[Day 13：LegalizerHelper、寄存器提示、Hazard 仲裁与 TMA 重构](/gpu-compiler/2026-10-28-gpgpu-compiler-interview-day-13/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 11：Loop Skewing、SMS 软流水、死锁验证与低比特编译**](/gpu-compiler/2026-10-26-gpgpu-compiler-interview-day-11/)
+> 👉 **下一期推荐**：[**Day 13：LegalizerHelper、寄存器提示、Hazard 仲裁与 TMA 重构**](/gpu-compiler/2026-10-28-gpgpu-compiler-interview-day-13/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

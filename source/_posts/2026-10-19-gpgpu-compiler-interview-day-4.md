@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, GlobalISel, TensorCore, 循环展开, 异步拷贝, 指令�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第4期（Day 4）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第4期（Day 4）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：GlobalISel 与 SelectionDAG 在复杂 GPU 后端上的架构演进、Tensor Core / Matrix Core Fragment 物理寄存器连续对齐与 RA 防打乱保护、发散循环展开权衡与 Warp Vote 谓词化重构、异步拷贝流水线（TMA / Async Group）依赖令牌调度、Post-RA 物理寄存器锁定下的 Scoreboard 感知与延迟掩盖。
@@ -786,6 +786,6 @@ void PostRASchedulerList::buildSchedGraph(AAResults *AA) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/)**
-> 👉 **下一期推荐**：**[Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 3：算子融合、One-Shot Bufferize、寄存器溢出与集群同步**](/gpu-compiler/2026-10-18-gpgpu-compiler-interview-day-3/)
+> 👉 **下一期推荐**：[**Day 5：发散不变式、I-Cache 抖动、Spill 代价与显存规划**](/gpu-compiler/2026-10-20-gpgpu-compiler-interview-day-5/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

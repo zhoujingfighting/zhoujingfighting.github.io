@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, AMDGPU, 内存模型, 编译优化, 体系结构]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 核心重难点专题深度精讲系列。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 核心重难点专题深度精讲系列。
 > 深度剖析工业界 GPU 编译器底层实现，聚焦片上资源约束、Call Graph 闭包分析、LDS 结构体化降级与汇编级描述符生成。
 
 ---
@@ -147,9 +147,9 @@ void AMDGPUResourceUsageAnalysis::analyzeResourceUsage(
 
 ---
 
-## 4. 最小可复现验证用例（HIP / Compiler Explorer）
+## 4. 最小可复现验证用例 (HIP / Compiler Explorer)
 
-你可以将以下代码直接粘贴到 [Compiler Explorer (godbolt.org)](https://godbolt.org/)，选择 **HIP-Clang (如 x86_64 amdgcn AMD GPU HIP-Clang)**，并输入参数 `-O2 --offload-arch=gfx90a`：
+你可以将以下代码直接粘贴到 [Compiler Explorer (godbolt.org)](https://godbolt.org/)，选择 **HIP-Clang**（如 `x86_64 amdgcn AMD GPU HIP-Clang`），并输入参数 `-O2 --offload-arch=gfx90a`：
 
 ```cpp
 #include <hip/hip_runtime.h>
@@ -239,4 +239,4 @@ __global__ void kernel_2(int idx, int val) {
 
 ---
 
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 编译优化, 寄存器分配, TMA, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第17期（Day 17）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第17期（Day 17）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：RegisterCoalescer LaneBitmask 宽向量子寄存器合并与死锁防范、InferAddressSpaces 格模型（Lattice）与 Flat/Generic 消除克隆降级、AMDGPUISelDAGToDAG 平面原子累加（Flat Global Atomics）降级与 Cache Coherence 一致性修饰符、ConvertVectorToGPU Warp Shuffle 归约与二维子通道映射、Triton/IREE 异步预取流水与共享内存三级缓冲（Triple Buffering）展开。
@@ -341,6 +341,6 @@ void emitTripleBufferedLoop(OpBuilder &b, ForOp oldLoop, Value smemBuffers[3]) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 16：发散出口规约、子区间干涉、寻址偏移折叠与内存复用](/gpu-compiler/2026-10-31-gpgpu-compiler-interview-day-16/)**
-> 👉 **下一期推荐**：**[Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 16：发散出口规约、子区间干涉、寻址偏移折叠与内存复用**](/gpu-compiler/2026-10-31-gpgpu-compiler-interview-day-16/)
+> 👉 **下一期推荐**：[**Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数**](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

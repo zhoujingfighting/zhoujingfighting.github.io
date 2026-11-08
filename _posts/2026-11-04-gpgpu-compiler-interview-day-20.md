@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 体系结构, 指令调度, 内存模型, 面�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第20期（Day 20）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第20期（Day 20）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：DivergenceAnalysis 同步发散（Sync Divergence）与非结构化循环出口判定、SelectionDAG 巨大基本块分块与 GlobalISel/FastISel 早筛回退、AMDGPU SIInsertWaitcnts 异步全局 VMEM 与片上 LDS 记分牌精确推导、MLIR GPUToLLVM 动态共享内存符号降级与 16 字节对齐保护、Triton Block-Level Masking 谓词折叠与零填充旁路优化。
@@ -329,6 +329,6 @@ void emitMaskedGlobalLoad(ConversionPatternRewriter &rewriter, Location loc,
 
 ---
 
-> 👈 **上一期回顾**：**[Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/)**
-> 👉 **下一期推荐**：**[Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置**](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/)
+> 👉 **下一期推荐**：[**Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级**](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

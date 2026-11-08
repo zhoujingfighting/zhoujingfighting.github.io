@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, ROCm, 别名分析, 寄存器分配, 指令选
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第18期（Day 18）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第18期（Day 18）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：BasicAliasAnalysis 跨通道 GEP 线性化分解与发散别名推导、SlotIndexes 四分槽位微粒度模型与虚拟寄存器死区精准刻画、SelectionDAGISel 硬件位段提取（BFE）模式匹配与 INT4/FP8 解包、ConvertGPUToROCDL Wave 广播降级与 ds_bpermute / readlane 硬件原语、Triton/AI 编译器流水线指针代数折叠与常量寻址吸收。
@@ -320,6 +320,6 @@ void foldPipelinePointers(scf::ForOp forOp, Value initialPtr, int64_t tileByteSt
 
 ---
 
-> 👈 **上一期回顾**：**[Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/)**
-> 👉 **下一期推荐**：**[Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 17：子寄存器消除、地址空间推导、全局原子降级与三级缓冲**](/gpu-compiler/2026-11-01-gpgpu-compiler-interview-day-17/)
+> 👉 **下一期推荐**：[**Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置**](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

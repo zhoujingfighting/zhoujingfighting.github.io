@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 内存模型, 软流水, 编译优化, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第19期（Day 19）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第19期（Day 19）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：AMDGPUPromoteAlloca 私有栈提升至 LDS/向量与动态回退、SelectionDAGLegalize 饱和算术合法化与硬件 Clamp/MED3 单周期融合、MachinePipeliner RecMII 循环依赖最小间隔与强连通分量代数求解、ConvertLinalgToLoops 动态边界剥离（Bound Peeling）与分支消除、Triton/IREE 片上 LDS 跨线程原位矩阵转置与双向无冲突 Bank Swizzling。
@@ -333,6 +333,6 @@ public:
 
 ---
 
-> 👈 **上一期回顾**：**[Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/)**
-> 👉 **下一期推荐**：**[Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 18：跨通道别名、微槽位模型、硬件位段提取与指针代数**](/gpu-compiler/2026-11-02-gpgpu-compiler-interview-day-18/)
+> 👉 **下一期推荐**：[**Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词**](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

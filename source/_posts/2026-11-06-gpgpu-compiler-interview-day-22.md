@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, 指令调度, 标量化, 体系结构, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第22期（Day 22）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第22期（Day 22）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：DivergenceAnalysis 散度驱动机器级下沉（MachineSink）合法性校验与标量单元保护、SelectionDAG ScheduleDAGSDNodes 物理寄存器 Copy Glue 边拓扑粘合与调度原子化、AMDGPU SIInstrInfo V_READFIRSTLANE_B32 插入与 Waterfall 瀑布循环串行化标量访存、ConvertLinalgToAffineLoops 仿射归约融合屏障与多维分块暂存、Triton/AI 编译器 Block Pointer 范围分析与 64 位指针向 32 位基址算术下推优化。
@@ -324,6 +324,6 @@ Value optimizeTensorAddressCalculation(ConversionPatternRewriter &rewriter, Loca
 
 ---
 
-> 👈 **上一期回顾**：**[Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/)**
-> 👉 **下一期推荐**：**[Day 23：WaitStates 气泡填充、半精度合法化、不变式下沉与多级缓冲推进](/gpu-compiler/2026-11-07-gpgpu-compiler-interview-day-23/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级**](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/)
+> 👉 **下一期推荐**：[**Day 23：WaitStates 气泡填充、半精度合法化、不变式下沉与多级缓冲推进**](/gpu-compiler/2026-11-07-gpgpu-compiler-interview-day-23/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

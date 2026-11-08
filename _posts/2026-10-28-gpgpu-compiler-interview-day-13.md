@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, GlobalISel, 寄存器分配, TMA, 软流水, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第13期（Day 13）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第13期（Day 13）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：GlobalISel LegalizerHelper 向量解构与窄类型合法化、TargetRegisterInfo 硬件分配提示注入与对齐保护、AMDGPUHazardRecognizer SMRD/VALU 读后写冒险仲裁、ConvertGPUToNVVMPass 抽象索引与 Dynamic Smem 降级、TMA 与 mbarrier 跨迭代异步流水代数重构与 5 深度技术对比。
@@ -502,6 +502,6 @@ void emitHopperMainLoop(int num_iterations, DynamicSharedMemory smem) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 12：MachineLICM、OneShotBufferize、RAGreedy 与机制对比](/gpu-compiler/2026-10-27-gpgpu-compiler-interview-day-12/)**
-> 👉 **下一期推荐**：**[Day 14：VectorCombine、指令级活跃区间切分、SASS 控制码与 Memref 逃逸](/gpu-compiler/2026-10-29-gpgpu-compiler-interview-day-14/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 12：MachineLICM、OneShotBufferize、RAGreedy 与机制对比**](/gpu-compiler/2026-10-27-gpgpu-compiler-interview-day-12/)
+> 👉 **下一期推荐**：[**Day 14：VectorCombine、指令级活跃区间切分、SASS 控制码与 Memref 逃逸**](/gpu-compiler/2026-10-29-gpgpu-compiler-interview-day-14/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

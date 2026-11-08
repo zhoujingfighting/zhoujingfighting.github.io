@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, 软流水, 死锁分析, 原子操作, 量化编译, �
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第11期（Day 11）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第11期（Day 11）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：Affine Dialect 中的 Loop Skewing 与非平凡多维依赖消除、LLVM MachinePipeliner (SMS) 与 MVE 循环变量展开、Warp 发散控制流下的隐式死锁与静态收敛验证、Global Memory 非连续原子操作的 Warp 聚合、低比特（FP8/INT4）量化矩阵乘 Scale 传播与饱和截断。
@@ -267,6 +267,6 @@ SDValue LowerTruncWithSaturation(SDValue Op, SelectionDAG &DAG) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 10：寄存器别名、Linalg 降级、mbarrier 与立即数冲突](/gpu-compiler/2026-10-25-gpgpu-compiler-interview-day-10/)**
-> 👉 **下一期推荐**：**[Day 12：MachineLICM、OneShotBufferize、RAGreedy 与机制对比](/gpu-compiler/2026-10-27-gpgpu-compiler-interview-day-12/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 10：寄存器别名、Linalg 降级、mbarrier 与立即数冲突**](/gpu-compiler/2026-10-25-gpgpu-compiler-interview-day-10/)
+> 👉 **下一期推荐**：[**Day 12：MachineLICM、OneShotBufferize、RAGreedy 与机制对比**](/gpu-compiler/2026-10-27-gpgpu-compiler-interview-day-12/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

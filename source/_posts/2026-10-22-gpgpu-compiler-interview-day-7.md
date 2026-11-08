@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, CallingConvention, 指令发射, 动态并行, 原子操作,
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第7期（Day 7）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第7期（Day 7）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：Host 到 Device 参数传递机制与 TargetLowering Parameter Space 映射、Issue Port Starvation（发射端口饥饿）与微架构管线交织调度、GPGPU 间接函数调用与 CUDA Dynamic Parallelism（CDP）挑战与去虚拟化方案、atomicrmw 弱内存模型硬件 Qualifier 生成与静默数据竞争排查、张量 Layout Propagation 图级消除与 Shared Memory Staging Transpose 补偿转置。
@@ -593,6 +593,6 @@ void emitSmemStagedTranspose(OpBuilder &b, Location loc, Value gmemInput) {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/)**
-> 👉 **下一期推荐**：**[Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优**](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/)
+> 👉 **下一期推荐**：[**Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工**](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

@@ -6,7 +6,7 @@ tags: [GPGPU, MLIR, LLVM, Bufferization, 循环映射, PatternRewriter, 混合�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第8期（Day 8）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第8期（Day 8）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：MLIR 渐进式 Lowering 与 GPU 目标硬件属性保留（Address Space / CallingConv / Intrinsics）、One-Shot Bufferization 别名分析与静态/动态 Shared Memory 降级、SCF/Affine 循环到 GPU Grid/Block 硬件拓扑映射与 Trip Count 裁决、GreedyPatternRewriter 匹配收敛机制与 Tensor Core 原语 Fallback 降级、现代 GPU 编译器中 MLIR 与传统 LLVM 后端的职责边界划分与交接架构。
@@ -594,5 +594,5 @@ LogicalResult GreedyPatternRewriteDriver::processWorklist() {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 7：参数传递、发射端口饥饿、动态调用与内存布局](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 7：参数传递、发射端口饥饿、动态调用与内存布局**](/gpu-compiler/2026-10-22-gpgpu-compiler-interview-day-7/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

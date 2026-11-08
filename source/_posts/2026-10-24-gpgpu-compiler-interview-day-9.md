@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MLIR, Triton, TMA, 别名分析, Shuffle, 面试]
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第9期（Day 9）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第9期（Day 9）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：TMA 异步分块与 MLIR 描述符生成、GPU 多地址空间指针别名分析与 MemorySSA 穿透、Warp Shuffle 硬件拓扑与蝶式规约、目标机 Peephole 复合指令重写（FMA/MAD/BFI）、GPU 并发 ABA 与弱内存可见性陷阱。
@@ -291,6 +291,6 @@ bool llvm::canSinkOrHoistInst(Instruction &I, AAResults *AA, DominatorTree *DT,
 
 ---
 
-> 👈 **上一期回顾**：**[Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/)**
-> 👉 **下一期推荐**：**[Day 10：寄存器别名、Linalg 降级、mbarrier 与立即数冲突](/gpu-compiler/2026-10-25-gpgpu-compiler-interview-day-10/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 8：MLIR 降级、共享内存映射、循环变换与混合架构分工**](/gpu-compiler/2026-10-23-gpgpu-compiler-interview-day-8/)
+> 👉 **下一期推荐**：[**Day 10：寄存器别名、Linalg 降级、mbarrier 与立即数冲突**](/gpu-compiler/2026-10-25-gpgpu-compiler-interview-day-10/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

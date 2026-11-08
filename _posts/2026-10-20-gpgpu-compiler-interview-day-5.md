@@ -6,7 +6,7 @@ tags: [GPGPU, LLVM, MachineLICM, I-Cache, 寄存器溢出, 显存规划, 异常�
 toc: true
 ---
 
-> 本文为 **[GPGPU 编译器工程师面试通关指南](/gpgpu-interview/)** 系列第5期（Day 5）。
+> 本文为 [**GPGPU 编译器工程师面试通关指南**](/gpgpu-interview/) 系列第5期（Day 5）。
 > 建议在阅读“面试官参考解析”前，先独立思考每道题目的考察意图与答题脉络（每题思考 3~5 分钟）。
 
 > 💡 **核心考察维度**：MachineLICM 机器级循环外提在 SIMT 上的“发散不变式”陷阱与 Uniformity 准入过滤、激进函数内联引发的 I-Cache Thrashing 与 TLP 级联崩溃、GPU 专属 Spill Cost 评估（Warp 32x 放大、内存合并感知与 Remat 替代）、Tensor Lifetime Scheduling 区间图着色与动态控制流显存复用、轻量化硬件调度下的 GPU 异常（Trap/Assert）与全局 Error Ring Buffer 协同支撑。
@@ -452,6 +452,6 @@ struct GPUErrorBuffer {
 
 ---
 
-> 👈 **上一期回顾**：**[Day 4：GlobalISel、Fragment 布局、发散展开与异步流水](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/)**
-> 👉 **下一期推荐**：**[Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/)**
-> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
+> 👈 **上一期回顾**：[**Day 4：GlobalISel、Fragment 布局、发散展开与异步流水**](/gpu-compiler/2026-10-19-gpgpu-compiler-interview-day-4/)
+> 👉 **下一期推荐**：[**Day 6：Hazard Recognizer、分布式共享内存、标量化与自动调优**](/gpu-compiler/2026-10-21-gpgpu-compiler-interview-day-6/)
+> 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。
