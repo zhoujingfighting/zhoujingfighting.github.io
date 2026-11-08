@@ -67,6 +67,19 @@ graph TD
 | **Day 19** | [**精选 Day 19：Alloca 栈提升、饱和算术合法化、SMS 软流水 RecMII 与矩阵转置**](/gpu-compiler/2026-11-03-gpgpu-compiler-interview-day-19/) | AMDGPUPromoteAlloca 私有栈提升至 LDS/向量与动态回退、SelectionDAGLegalize 饱和算术合法化与硬件 Clamp/MED3 单周期融合、MachinePipeliner RecMII 循环依赖最小间隔求解、ConvertLinalgToLoops 动态边界剥离（Bound Peeling）、Triton/IREE 片上 LDS 矩阵转置与双向无冲突 Bank Swizzling | ✅ **已发布** |
 | **Day 20** | [**精选 Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词**](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/) | DivergenceAnalysis 同步发散与非结构化循环出口判定、SelectionDAG 巨大基本块分块与早筛回退、AMDGPU SIInsertWaitcnts 记分牌精确推导、MLIR 动态共享内存符号降级与对齐、Triton 谓词折叠优化 | ✅ **已发布** |
 | **Day 21** | [**精选 Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级**](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/) | GlobalISel RegBankSelect 标量/向量寄存器库映射与跨 Bank 拷贝、SelectionDAG 除法取模公共子表达式折叠、SIPreEmitPeephole EXEC 全零短路消除、Subgroup WMMA/MFMA 矩阵降级、Triton 非连续访存合并重排 | ✅ **已发布** |
+| **Day 22** | [**精选 Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化**](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/) | DivergenceAnalysis 机器级下沉合法性与标量保护、SelectionDAG 物理寄存器 Copy Glue 边约束、AMDGPU Waterfall 瀑布循环串行化标量访存、仿射归约融合与分块暂存、Triton 32 位基址寻址溢出防护 | ✅ **已发布** |
+| **Day 23** | [**精选 Day 23：WaitStates 气泡填充、半精度合法化、不变式下沉与多级缓冲推进**](/gpu-compiler/2026-11-07-gpgpu-compiler-interview-day-23/) | AMDGPUInsertWaitStates 流水线气泡填充与冒险规避、SelectionDAG 半精度 (FP16) 标量扩展合法化、MachineSink 循环不变式安全下沉与生命周期压缩、ConvertGPUToNVVM Shuffle 广播降级、Triton 共享内存多级缓冲阶段推进与对齐 | ✅ **已发布** |
+
+---
+
+### 🚀 核心重难点专题深度精讲（Deep Dives）
+
+聚焦工业界编译器底层实现、多 Kernel 资源隔离与微架构约束的源码级全景拆解。
+
+| 序号 | 专题名称 | 核心考察与源码剖析模块 | 状态 |
+| :---: | :--- | :--- | :---: |
+| **Special 1** | [**GPGPU 编译器核心机理剖析：跨 Kernel 与 Device 函数的 Shared Memory / LDS 资源隔离与动态统计**](/gpu-compiler/2026-11-08-gpgpu-kernel-shared-memory-lds-allocation/) | Call Graph 可达性闭包展开、`AMDGPUResourceUsageAnalysis` 物理对齐累加、`AMDGPULowerModuleLDS` 结构体化降级与绝对基址复用、`.amdhsa_kernel` 描述符、间接调用全集并集与 NVPTX `ptxas` 机制对比 | ✅ **已发布** |
+
 
 ### 模块一：GPGPU 体系结构与硬件机制（地基篇）
 
@@ -76,7 +89,7 @@ graph TD
 | :---: | :--- | :--- | :---: |
 | 1.1 | **SIMT 并行模型与 Warp 调度机制** | SIMD vs SIMT、Warp/Wavefront 调度、Scoreboard、双发射 | ⏳ 待更新 |
 | 1.2 | **控制流与分支分化（Branch Divergence）** | 分支分化机理、Reconvergence Stack、Independent Thread Scheduling | ⏳ 待更新 |
-| 1.3 | **GPU 存储层次与瓶颈定位** | Global/Shared/LDS/Constant/Local 存储特性、Bank Conflict、访存合并 | ⏳ 待更新 |
+| 1.3 | **[GPU 存储层次与瓶颈定位：跨 Kernel LDS 资源隔离与统计](/gpu-compiler/2026-11-08-gpgpu-kernel-shared-memory-lds-allocation/)** | Global/Shared/LDS/Constant/Local 存储特性、Bank Conflict、访存合并、Call Graph LDS 闭包分析 | ✅ **已发布** |
 | 1.4 | **Occupancy 与延迟隐藏（Latency Hiding）** | 寄存器与 LDS 资源约束、Roofline 模型、Compute-bound vs Memory-bound | ⏳ 待更新 |
 | 1.5 | **现代 GPU 专用硬件单元** | Tensor Core / Matrix Core (MMA/MFMA)、异步拷贝机制 (TMA / cp.async) | ⏳ 待更新 |
 
@@ -104,7 +117,7 @@ graph TD
 | 3.2 | **GPU 专用访存优化与向量化** | 自动合并访存 Pass、Shared Memory Padding、128-bit 宽字向量化加载 | ⏳ 待更新 |
 | 3.3 | **指令调度策略：延迟隐藏 vs 寄存器压力** | MachineScheduler 在 GPU 后端的实现、高延迟访存提升与跨 BasicBlock 调度 | ⏳ 待更新 |
 | 3.4 | **GPU 寄存器分配与 Spill 治理** | 贪心寄存器分配、GPU Spill 灾难排查、重计算（Rematerialization）策略 | ⏳ 待更新 |
-| 3.5 | **异构驱动交互与 Fat Binary 机制** | Clang Offload 架构、ELF/HSACO 格式、Kernel Descriptor 与 Runtime 加载 | ⏳ 待更新 |
+| 3.5 | **[异构驱动交互与 Fat Binary 机制：Kernel Descriptor 与 LDS 统计](/gpu-compiler/2026-11-08-gpgpu-kernel-shared-memory-lds-allocation/)** | Clang Offload 架构、ELF/HSACO 格式、Kernel Descriptor 与 Runtime 加载、LDS 结构体化降级 | ✅ **已发布** |
 
 ---
 

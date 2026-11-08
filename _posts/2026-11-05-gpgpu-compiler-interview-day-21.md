@@ -347,4 +347,5 @@ Attribute fixEncoding(OpBuilder &b, BlockedEncodingAttr oldLayout, ArrayRef<int6
 ---
 
 > 👈 **上一期回顾**：**[Day 20：Sync Divergence、SelectionDAG 耗时裁剪、waitcnt 记分牌与尾块谓词](/gpu-compiler/2026-11-04-gpgpu-compiler-interview-day-20/)**
+> 👉 **下一期推荐**：**[Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)**
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 **[GPGPU 编译器面试通关指南目录](/gpgpu-interview/)**。
