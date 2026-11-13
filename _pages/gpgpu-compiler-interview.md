@@ -77,6 +77,11 @@ graph TD
 | **Day 21** | [**精选 Day 21：RegBankSelect、SDIVREM 折叠、EXEC 掩码短路与 WMMA/MFMA 降级**](/gpu-compiler/2026-11-05-gpgpu-compiler-interview-day-21/) | GlobalISel RegBankSelect 标量/向量寄存器库映射与跨 Bank 拷贝、SelectionDAG 除法取模公共子表达式折叠、SIPreEmitPeephole EXEC 全零短路消除、Subgroup WMMA/MFMA 矩阵降级、Triton 非连续访存合并重排 | ✅ **已发布** |
 | **Day 22** | [**精选 Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化**](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/) | DivergenceAnalysis 机器级下沉合法性与标量保护、SelectionDAG 物理寄存器 Copy Glue 边约束、AMDGPU Waterfall 瀑布循环串行化标量访存、仿射归约融合与分块暂存、Triton 32 位基址寻址溢出防护 | ✅ **已发布** |
 | **Day 23** | [**精选 Day 23：WaitStates 气泡填充、半精度合法化、不变式下沉与多级缓冲推进**](/gpu-compiler/2026-11-07-gpgpu-compiler-interview-day-23/) | AMDGPUInsertWaitStates 流水线气泡填充与冒险规避、SelectionDAG 半精度 (FP16) 标量扩展合法化、MachineSink 循环不变式安全下沉与生命周期压缩、ConvertGPUToNVVM Shuffle 广播降级、Triton 共享内存多级缓冲阶段推进与对齐 | ✅ **已发布** |
+| **Day 24** | [**精选 Day 24：CFG 结构化、推测阻断、Hard Clauses 与 Swizzling 逆向**](/gpu-compiler/2026-11-08-gpgpu-compiler-interview-day-24/) | AMDGPUMachineCFGStructurizer 串行化重构、ScheduleDAGFast 内存屏障推测阻断、SIInsertHardClauses 内存子句打包、ConvertGPUToSPIRV 降级、Triton 共享内存 Swizzling 逆向推导 | ✅ **已发布** |
+| **Day 25** | [**精选 Day 25：PerfHint 访存预测、拓扑高度重排、SGPR 复制修复与 TMA 规整化**](/gpu-compiler/2026-11-09-gpgpu-compiler-interview-day-25/) | AMDGPUPerfHintAnalysis 全局访存模式静态预测、ScheduleDAGRRList 拓扑高度重排与 WAR 反依赖消解、SIFixSGPRCopies 异构寄存器复制修复、ConvertGPUToROCDL Shuffle 降级、Triton TMA 布局规整 | ✅ **已发布** |
+| **Day 26** | [**精选 Day 26：Wave32/64 模式切换、宽整数进位链、Literal 字仲裁与 Warp-Specialized**](/gpu-compiler/2026-11-10-gpgpu-compiler-interview-day-26/) | AMDGPU 波前模式 (Wave32 vs Wave64) 统一与寄存器重算、LegalizeIntegerTypes 宽整数进位链穿透、SIInstrInfo Literal 指令字仲裁、Printf 格式化降级、Triton Warp-Specialized 软件流水 | ✅ **已发布** |
+| **Day 27** | [**精选 Day 27：VOP3P 双发射解码、TokenFactor 压缩、Fallthrough 对齐与 Tile 自动调优**](/gpu-compiler/2026-11-11-gpgpu-compiler-interview-day-27/) | AMDGPUDisassembly VOP3P 扩展打包与双发射解码、SelectionDAG TokenFactor 展开与依赖扇入压缩、MachineBlockPlacement 分支概率感知块对齐、Subgroup 投票规约、Triton 寄存器脚印 Tile 调优 | ✅ **已发布** |
+| **Day 28** | [**精选 Day 28：LSR 寻址代价、TwoAddress 破坏性重写、宽向量 Memcpy 与持久化内核**](/gpu-compiler/2026-11-12-gpgpu-compiler-interview-day-28/) | AMDGPU LSR 循环强度削减寻址代价模型、TwoAddressInstructionPass 破坏性重写与寄存器重用、NVPTX 宽向量化 Memcpy 展开、MLIR 多面体分块边界极值消除、Triton 持久化内核调度 | ✅ **已发布** |
 
 ---
 

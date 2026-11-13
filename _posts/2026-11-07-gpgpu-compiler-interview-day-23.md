@@ -344,4 +344,5 @@ void buildPipelinedLoop(scf::ForOp forOp, int numStages) {
 ---
 
 > 👈 **上一期回顾**：[**Day 22：散度下沉陷阱、Copy Glue 边约束、Waterfall 瀑布循环与 32 位基址优化**](/gpu-compiler/2026-11-06-gpgpu-compiler-interview-day-22/)
+> 👉 **下一期推荐**：[**Day 24：CFG 结构化、推测阻断、Hard Clauses 与 Swizzling 逆向**](/gpu-compiler/2026-11-08-gpgpu-compiler-interview-day-24/)
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。
