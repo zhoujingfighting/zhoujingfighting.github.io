@@ -347,4 +347,5 @@ void emitPersistentKernelLoop(OpBuilder &b, Location loc, int numSMs, int totalT
 ---
 
 > 👈 **上一期回顾**：[**Day 27：VOP3P 双发射解码、TokenFactor 压缩、Fallthrough 对齐与 Tile 自动调优**](/gpu-compiler/2026-11-11-gpgpu-compiler-interview-day-27/)
+> 👉 **下一期推荐**：[**Day 29：IPO 硬件属性裁剪、栈槽着色、LDG 非缓存推导与 Split-K**](/gpu-compiler/2026-11-13-gpgpu-compiler-interview-day-29/)
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。
