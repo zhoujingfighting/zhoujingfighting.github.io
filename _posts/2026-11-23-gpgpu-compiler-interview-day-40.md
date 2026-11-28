@@ -344,4 +344,5 @@ void emitTreeAttentionBitmaskFilter(OpBuilder &b, Location loc,
 ---
 
 > 👈 **上一期回顾**：[**Day 39：SIInsertWaitcnts 追踪、MacroFusion、red.global、仿射分析与 Min-Cut 重计算**](/gpu-compiler/2026-11-22-gpgpu-compiler-interview-day-39/)
+> 👉 **下一期推荐**：[**Day 41：AGPR 重写、MachineLICM 压力感知、TMA Reduce 与 Ring Attention**](/gpu-compiler/2026-11-24-gpgpu-compiler-interview-day-41/)
 > 👉 **专栏返回**：查看更多模块内容与更新计划，请访问 [**GPGPU 编译器面试通关指南目录**](/gpgpu-interview/)。

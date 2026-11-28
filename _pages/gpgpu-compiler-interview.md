@@ -93,6 +93,9 @@ graph TD
 | **Day 38** | [**精选 Day 38：AMDGPUPromoteAlloca、LiveIntervals SubRange、Hopper TMA 与 FlashDecoding**](/gpu-compiler/2026-11-21-gpgpu-compiler-interview-day-38/) | AMDGPUPromoteAlloca 私有栈提升与 LDS 熔断、LiveIntervals SubRange 子通道活跃性追踪、Hopper TMA 多维描述符降级、MLIR MmaSync 布局片段映射、FlashDecoding Split-KV 在线统计量合并 | ✅ **已发布** |
 | **Day 39** | [**精选 Day 39：SIInsertWaitcnts 追踪、MacroFusion、red.global、仿射分析与 Min-Cut 重计算**](/gpu-compiler/2026-11-22-gpgpu-compiler-interview-day-39/) | SIInsertWaitcnts 计数器精算与汇聚点合并、PostMachineScheduler MacroFusion 宏融合、NVPTX red.global 无返回值原子归约、MLIR AffineAnalysis 方向向量求解、Min-Cut 激活重计算自动切分 | ✅ **已发布** |
 | **Day 40** | [**精选 Day 40：交织 Scratch 栈寻址、二地址交换重写、FP8/BF16 合法化与树状注意力**](/gpu-compiler/2026-11-23-gpgpu-compiler-interview-day-40/) | SIFrameLowering 交织 Scratch 栈帧布局、TwoAddressInstructionPass 可交换操作数对调消除 COPY、NVPTX FP8/BF16 类型合法化、MLIR Linalg 归约广播向量化、Speculative Decoding 树状注意力稀疏跳过 | ✅ **已发布** |
+| **Day 41** | [**精选 Day 41：AGPR 重写、MachineLICM 压力感知、TMA Reduce 与 Ring Attention**](/gpu-compiler/2026-11-24-gpgpu-compiler-interview-day-41/) | AMDGPURewriteAGPRCopyMFMA 零拷贝重写、MachineLICM 寄存器压力感知、Hopper TMA Reduce 硬件归约、MLIR Subview 视图折叠、Ring/Striped Attention 长上下文流水 | ✅ **已发布** |
+| **Day 42** | [**精选 Day 42：GlobalISel 瀑布循环、冷热块 I-Cache 紧缩、mbarrier 相位翻转与 Blackwell TMEM / MXFP4**](/gpu-compiler/2026-11-25-gpgpu-compiler-interview-day-42/) | AMDGPURegBankSelect 瀑布循环生成、MachineBlockPlacement 冷热块 I-Cache 紧缩、mbarrier 相位奇偶状态机、MLIR MultiBuffer 模消除、Blackwell SM_100 MXFP4 与 TMEM | ✅ **已发布** |
+| **Day 43** | [**精选 Day 43：AMDGPUMemoryLegalizer 缓存穿透、InlineSpiller 支配树、NVPTXLowerUnreachable 与 FP8 动态量化**](/gpu-compiler/2026-11-26-gpgpu-compiler-interview-day-43/) | AMDGPUMemoryLegalizer 缓存穿透标志、InlineSpiller 支配树溢出下沉与折叠、NVPTXLowerUnreachable 死锁规避、MLIR KernelOutlining 边界切分、FP8 延迟缩放与 Amax 融合 | ✅ **已发布** |
 
 ---
 
