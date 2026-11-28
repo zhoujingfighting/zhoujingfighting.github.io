@@ -15,7 +15,7 @@ mindmap
     IO-aware 注意力融合
       简化版 FlashAttention
       Prefill vs Decode KV Cache
-      消除 O(N^2) 中间矩阵写回
+      消除 平方级 N^2 中间矩阵写回
       在线 Softmax 状态维护
     性能剖析与溢出排查
       DRAM 读写流量对比

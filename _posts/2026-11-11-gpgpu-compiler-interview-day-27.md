@@ -48,12 +48,12 @@ mindmap
     VOP3P 双发射解码
       AMDGPUDisassembler
       packed 16-bit 向量指令
-      双发射 (Dual-Issue) 指令槽位
+      双发射 Dual-Issue 指令槽位
       主从操作数打包与解码
     TokenFactor 依赖压缩
       SelectionDAG
-      内存屏障与链节点 (Chains)
-      超大扇入 (Fan-In) 树状重构
+      内存屏障与链节点 Chains
+      超大扇入 Fan-In 树状重构
       拓扑排序与内存占用剪枝
     分支概率感知块对齐
       MachineBlockPlacement
@@ -62,13 +62,13 @@ mindmap
       指令预取命中率保护
     Subgroup 投票与规约
       ConvertGPUToLLVMPass
-      gpu.subgroup_reduce (all/any)
+      gpu.subgroup_reduce all / any
       PTX vote.sync 原语
       Active Mask 掩码收敛
     寄存器驱动 Tile 调优
       Triton Auto-Tuning
-      编译期寄存器脚印 (Footprint) 模拟
-      边界锯齿 (Tail Quantization) 消除
+      编译期寄存器脚印 Footprint 模拟
+      边界锯齿 Tail Quantization 消除
       Occupancy 与 Tile 尺寸全局寻优
 ```
 

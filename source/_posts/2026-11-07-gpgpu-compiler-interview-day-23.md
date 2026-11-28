@@ -52,7 +52,7 @@ mindmap
       RAW 冲突与 EXEC 写入延迟
     半精度类型合法化
       LegalizeFloatTypes
-      PromoteFloatOp (FP16 -> FP32)
+      PromoteFloatOp FP16 到 FP32
       消除冗余 CVT 转换
       SFU 特殊函数单元适配
     机器级代码下沉
@@ -62,7 +62,7 @@ mindmap
       Warp 控制流发散保护
     Shuffle 广播与降级
       ConvertGPUToNVVM
-      shfl.sync (bfly, up, down, idx)
+      shfl.sync bfly / up / down / idx
       三维线程网格线性化
       物理 Lane ID 精确映射
     多级缓冲阶段推进

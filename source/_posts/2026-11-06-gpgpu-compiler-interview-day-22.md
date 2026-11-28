@@ -53,7 +53,7 @@ mindmap
     Copy Glue 边约束
       ScheduleDAGSDNodes
       CopyToReg / CopyFromReg 粘合
-      不可分割调度原子 (SchedUnit)
+      不可分割调度原子 SchedUnit
       防止激进重排导致物理寄存器踩踏
     Waterfall 瀑布循环
       V_READFIRSTLANE_B32

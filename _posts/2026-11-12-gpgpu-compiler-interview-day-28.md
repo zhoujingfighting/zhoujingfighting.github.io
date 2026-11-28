@@ -58,11 +58,11 @@ mindmap
     宽向量化 Memcpy 展开
       NVPTXLowerAggrCopies
       结构体复制与连续清零
-      128 位宽向量 (v4i32 / v2i64)
+      128 位宽向量 v4i32 / v2i64
       单指令饱和对齐与吞吐最大化
     多面体参数化分块
       MLIR AffineLoopTiling
-      多面体极值消除 (Min/Max)
+      多面体极值消除 Min/Max
       满块主体与尾块边界剥离
       消除动态循环控制开销
     持久化内核调度

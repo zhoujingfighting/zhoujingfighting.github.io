@@ -66,7 +66,7 @@ mindmap
       L2 原子缓存吞吐提升
       Reduction 分层合并
     低比特量化编译
-      FP8 (E4M3/E5M2) 与 INT4
+      FP8 E4M3/E5M2 与 INT4
       Scale Factor 跨算子传播
       硬件饱和截断处理
       动态范围与精度补偿

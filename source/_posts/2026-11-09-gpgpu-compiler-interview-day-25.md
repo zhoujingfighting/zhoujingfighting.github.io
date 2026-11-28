@@ -52,7 +52,7 @@ mindmap
       运行时时钟升频与功耗引导
     拓扑高度重排
       ScheduleDAGRRList
-      物理反依赖 (WAR) 消除
+      物理反依赖 WAR 消除
       高度优先列表调度
       避免过早开启长寿命周期
     SGPR 复制修复

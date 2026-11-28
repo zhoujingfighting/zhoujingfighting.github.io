@@ -47,7 +47,7 @@ mindmap
   root((Day 26 核心考点图谱))
     Wave32 与 Wave64 模式
       GCNSubtarget
-      执行粒度权衡 (控制流 vs 算力)
+      执行粒度权衡 控制流 vs 算力
       VGPR 物理总量重算
       Occupancy 与分支惩罚
     宽整数展开与进位链
@@ -67,8 +67,8 @@ mindmap
       Host-Device 异步消费模型
     Warp-Specialized 流水
       Triton WarpSpecialization
-      生产者 (Producer) TMA 搬运
-      消费者 (Consumer) MMA 计算
+      生产者 Producer TMA 搬运
+      消费者 Consumer MMA 计算
       寄存器解耦与异步屏障
 ```
 

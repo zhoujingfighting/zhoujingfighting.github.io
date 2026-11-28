@@ -66,7 +66,7 @@ mindmap
       地址空间与 ABI 对齐
       标准化异构目标表示
     共享内存 Swizzling 逆向
-      (vec, perPhase, maxPhase)
+      vec / perPhase / maxPhase
       LDS 物理 Bank 异或重排
       逆向仿射变换推导
       跨线程解交织高效加载

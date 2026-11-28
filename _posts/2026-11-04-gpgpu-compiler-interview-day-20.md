@@ -57,8 +57,8 @@ mindmap
       MMA 复杂对齐强制回退
       SIInsertWaitcnts 记分牌
       WaitcntBrackets
-      VMEM 计数器 (vmcnt)
-      LDS 计数器 (lgkmcnt)
+      VMEM 计数器 vmcnt
+      LDS 计数器 lgkmcnt
       在途事务与延迟掩盖
     动态共享内存符号降级
       ConvertGPUToLLVM
